@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Ecompers extends Migration
+class CreateMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class Ecompers extends Migration
      */
     public function up()
     {
-        Schema::create('ecompers', function (Blueprint $table){
+        Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->string('username');
-            $table->bigInteger('chat_id')->unique();
+            $table->string('sender');
+            $table->string('receiver');
+            $table->string('text');
+            $table->bigInteger('message_id');
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class Ecompers extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('messages');
     }
 }

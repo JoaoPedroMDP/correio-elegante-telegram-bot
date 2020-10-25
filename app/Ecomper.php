@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ecomper extends Model
 {
-    protected $fillable = ['username', 'group_id'];
+    protected $fillable = ['username', 'chat_id'];
 }
