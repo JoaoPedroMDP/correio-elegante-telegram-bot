@@ -15,6 +15,7 @@ class Ecompers extends Migration
     {
         Schema::create('ecompers', function (Blueprint $table){
             $table->id();
+            $table->string('fakeIdentifier');
             $table->string('username');
             $table->bigInteger('chat_id')->unique();
             $table->timestamps();

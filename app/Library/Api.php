@@ -9,7 +9,7 @@ class Api{
     private static $baseURL = 'https://api.telegram.org/bot';
     
     private static function getLastUpdateID(){
-        $lastUID = Cache::pull('last_update');
+        $lastUID = Cache::get('last_update');
         if($lastUID != null){
             return $lastUID;
         }
@@ -27,30 +27,30 @@ class Api{
         return collect($response['result']);
     }
 
-    public static function sendMessage($target, $message){
+    public static function sendMessage($target, $message, $isBot = false){
         $token = config('services.Telegram')['token'].'/';
         $method = 'sendMessage';
-        $response = Http::get(Api::$baseURL.$token.$method, [
-            'chat_id' => $target,
-            'text' => $message
+        if($isBot){
+            $response = Http::get(Api::$baseURL.$token.$method, [
+                'chat_id' => $target,
+                'text' => $message,
+                'parse_mode' => 'MarkdownV2'
             ]);
-        $response = json_decode($response);
-        return $response->result;
-    }
-    
-    public static function sendPhoto($target, $id, $caption = null){
-        $token = config('services.Telegram')['token'].'/';
-        $method = 'sendPhoto';
-        $response = Http::get(Api::$baseURL.$token.$method, [
-            'chat_id' => $target,
-            'photo' => $id,
-            'caption' => $caption
+        }else{
+            $response = Http::get(Api::$baseURL.$token.$method, [
+                'chat_id' => $target,
+                'text' => $message
             ]);
+        }
         $response = json_decode($response);
+        if(!isset($response->result)){
+            return -1;
+        }
         return $response->result;
     }
 
     public static function update(){
+        error_log("update\n");
         $token = config('services.Telegram')['token'].'/';
         $method = 'getUpdates';
         $lastUID = self::getLastUpdateID();
