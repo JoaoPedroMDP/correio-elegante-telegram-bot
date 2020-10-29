@@ -32,7 +32,6 @@ class CorAnteController extends Controller
      * @return array $data
     */
     private function splitsCommands($text){
-        // var_dump($text);
         error_log("Splits\n");
         $data = explode(' ', $text);
         // Remove a '/' do COMANDO
@@ -50,15 +49,13 @@ class CorAnteController extends Controller
         // Se o COMANDO for 'start', não existem outros argumentos,
         // portanto preciso enviar apenas o 'start'
         $data[0] != 'start' && $text != '' ? array_push($data, $text) : null;
-        // var_dump($data);
         return $data;
     }
 
     private function botSend($targetId, $message){
-        // Precisa ser antes para caso a pessoa ainda nao tenha se cadastrado e tente mandr mensagem.
+        // Precisa ser antes para caso a pessoa ainda nao tenha se cadastrado e tente mandar mensagem.
         // Nesse caso precisamos enviar a ela uma mensagem dizendo que precisa se cadastrar
-        $response = Api::sendMessage($targetId, $message, $isBot = true);
-        var_dump($response);
+        Api::sendMessage($targetId, $message, $isBot = true);
     }
 
     private function send($sender, $target, $message, $replyMessageId = null){
@@ -112,7 +109,7 @@ class CorAnteController extends Controller
         ];
         
         $ecomper = Ecomper::create($data);
-        return true;
+        return $ecomper;
     }
 
     private function reply($replyTarget, $originalMessage, $text){
@@ -204,7 +201,7 @@ class CorAnteController extends Controller
                 }
                 break;
             default:
-            $this->botSend($sender['chat_id'], "*Que comando é esse que nem eu conhecia\?*\n");
+            $this->botSend($sender['chat_id'], "*Que comando é esse \($command\) que nem eu conhecia\?*\n");
             $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Comando desconhecido');
                 break;
         }
@@ -217,8 +214,8 @@ class CorAnteController extends Controller
         return false;
     }
 
-    private function welcomeMessage(){
-        return "*Bem vindo ao bot\!\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta*\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*Aproveite sua estadia\!*";
+    private function welcomeMessage($color){
+        return "*Bem vindo ao bot\! Sua cor é \@$color\@*\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'*\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta*\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*Aproveite sua estadia\!*";
     }
 
     /** Função principal da aplicação
@@ -247,12 +244,13 @@ class CorAnteController extends Controller
                     $sender['chat_id'] = $message->from->id;
                     $sender['username'] = $message->from->username;
                     if($command == 'start'){
-                        if($this->register($sender)){
+                        $newEcomper = $this->register($sender);
+                        if($newEcomper){
                             $this->botSend(
-                                $sender['chat_id'],
-                                $this->welcomeMessage()
+                                $newEcomper->chat_id,
+                                $this->welcomeMessage($newEcomper->fakeIdentifier)
                             );
-                            $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Mensagem de boas vindas');
+                            $this->newMessage('CorAnteBot', $newEcomper->username, 'Mensagem de boas vindas');
                         }
                     }else if($userOk){
                         $this->commands($command, $trio, $sender, $message);

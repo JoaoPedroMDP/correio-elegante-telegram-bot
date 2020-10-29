@@ -10,7 +10,7 @@ class ColorHandler extends AllColors{
     public function getColor(){
         $index = rand(0, count($this->colors));
         while(in_array($index, $this->used)){
-            $index = rand(0, count($this->colors));
+            $index = rand(0, count($this->colors - 1));
         }
         array_push($this->used, $index);
         return $this->colors[$index];
