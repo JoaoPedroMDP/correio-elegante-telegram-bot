@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('sendManual','CorAnteController@sendManual');
 Route::get('update','CorAnteController@updateMessages');
 Route::post('register', 'CorAnteController@register');
 

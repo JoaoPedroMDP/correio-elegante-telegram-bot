@@ -55,12 +55,10 @@ class CorAnteController extends Controller
     }
 
     private function botSend($targetId, $message){
-        // print 'oi';
         // Precisa ser antes para caso a pessoa ainda nao tenha se cadastrado e tente mandr mensagem.
         // Nesse caso precisamos enviar a ela uma mensagem dizendo que precisa se cadastrar
         $response = Api::sendMessage($targetId, $message, $isBot = true);
-        return $response->message_id;
-
+        var_dump($response);
     }
 
     private function send($sender, $target, $message, $replyMessageId = null){
@@ -72,33 +70,31 @@ class CorAnteController extends Controller
             return null;
         }else{
             if(isset($replyMessageId)){
-                $message = 'Resposta de ' . $sender->fakeIdentifier . ":\n" . $message;
+                $message = 'Resposta de @' . $sender->fakeIdentifier . "@:\n" . $message;
                 $botMessageId = Api::sendMessage($target->chat_id, $message, $replyMessageId);
             }else{
-                $message = 'Mensagem de ' . $sender->fakeIdentifier . ":\n" . $message;
+                $message = 'Mensagem de @' . $sender->fakeIdentifier . "@:\n" . $message;
                 $botMessageId = Api::sendMessage($target->chat_id, $message);
             }
             if($botMessageId === -1){
-                return $botMessageId;
+                return false;
             }
-            return $botMessageId->message_id;
+            return true;
         }
     }
 
-    private function newMessage($senderUsername, $target, $text, $message_id){
+    private function newMessage($senderUsername, $target, $text){
         try{
             $message = Message::create([
                 'sender' => $senderUsername,
                 'receiver' => $target,
-                'text' => $text,
-                'message_id' => $message_id
+                'text' => $text
             ]);
         }catch(QueryException $e){
             $message = Message::create([
                 'sender' => $senderUsername,
                 'receiver' => $target,
-                'text' => 'Mensagem era muito grande',
-                'message_id' => $message_id
+                'text' => 'Mensagem era muito grande'
             ]);
         }
     }
@@ -119,29 +115,48 @@ class CorAnteController extends Controller
         return true;
     }
 
-    private function reply($messageId, $text){
-        $message = Message::where('message_id', $messageId)->first();
-        $target = $this->searchEcomperByUser($message->sender);
-        $sender = $this->searchEcomperByUser($message->receiver);
-        $botMessageId = $this->send($sender->chat_id, $target->username, $text, $messageId -1);
-        $this->newMessage($sender->username, $target->username, $text, $botMessageId);
+    private function reply($replyTarget, $originalMessage, $text){
+
+        $target = $this->whoSent($originalMessage);
+        $sender = $this->searchEcomperByUser($replyTarget);
+        $ok = $this->send($sender->chat_id, $target->username, $text);
+        if($ok)
+            $this->newMessage($sender->username, $target->username, $text);
     }
 
     private function searchEcomperByUser($username){
-        $ecomper = Ecomper::where('username', $username);
+        $ecomper = Ecomper::where('username', $username)->first();
         if($ecomper){
-            return $ecomper->first();
+            return $ecomper;
         }
         return null;
     }
 
     private function searchEcomperById($chatId){
-        $ecomper = Ecomper::where('chat_id', $chatId);
+        $ecomper = Ecomper::where('chat_id', $chatId)->first();
         if($ecomper){
-            return $ecomper->first();
+            return $ecomper;
         }
         return null;
     }
+
+    private function searchEcomperByColor($color){
+        $ecomper = Ecomper::where('fakeIdentifier', $color)->first();
+        if($ecomper){
+            return $ecomper;
+        }
+        return null;
+    }
+
+    private function whoSent($text){
+        $color= explode('@', $text)[1];
+        $ecomper = $this->searchEcomperByColor($color);
+        if($ecomper){
+            return $ecomper;
+        }
+        return null;
+    }
+
     // DAQUI PARTEM $THIS->SEND E $THIS->REPLY
     private function commands($command, $trio, $sender, $message){
         error_log("commands\n");
@@ -153,45 +168,44 @@ class CorAnteController extends Controller
                 if(!$ok[0]){
                     $string = $message->text;
                     $messageId = $this->botSend($sender->chat_id, "*Algo de errado não está certo\!*\n" . $ok[1] . "\n\n*O que você enviou\:* $string\n\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'*\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*");
-                    $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Pessoa errou no /send', $messageId);
+                    $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Pessoa errou no /send');
                 }else{
                     $target = $trio[1];
                     $text = $trio[2];
-                    $botMessageId = $this->send(
+                    $this->send(
                         $sender->chat_id,
                         $target,
                         $text
                     );
-                    $botMessageId ? $this->newMessage($sender->username, $target, $text, $botMessageId) : null;
+                    $this->newMessage($sender->username, $target, $text);
                 }
             break;
             case 'reply':
                 $ok = $helper->validatesReply($trio);
                 if(!$ok[0]){
                     $string = $message->text; 
-                    $messageId = $this->botSend($sender['chat_id'], "*Algo de errado não está certo\!*\n" . $ok[1] . "\n\n*O que você enviou\:* $string\n\n*Para responder a uma mensagem\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO\n");
-                    $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply', $messageId);
+                    $this->botSend($sender['chat_id'], "*Algo de errado não está certo\!*\n" . $ok[1] . "\n\n*O que você enviou\:* $string\n\n*Para responder a uma mensagem\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO\n");
+                    $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply');
                 }else{
                     $text = $trio[1];
-                    $targetMessage = Message::where('message_id', $message->reply_to_message->message_id)->first();
                     if(!isset($message->reply_to_message)){
-                        print 'ue';
-                        $messageId = $this->botSend($message->from->id, '*Você precisa responder à mensagem para que tudo ocorra bem\.*');
-                        $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply - não respondeu', $messageId);
-                    }else if($targetMessage->sender == 'CorAnteBot'){
-                        $messageId = $this->botSend($message->from->id, '*Namoral que tu ta falando com o bot\?*');
-                        $this->newMessage('CorAnteBot', $sender['username'], 'Namoral que tu ta falando com o bot?', $messageId);
+                        $this->botSend($message->from->id, '*Você precisa responder à mensagem para que tudo ocorra bem\.*');
+                        $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply - não respondeu');
+                    }else if($this->whoSent($message->reply_to_message->text) == 'CorAnteBot'){
+                        $this->botSend($message->from->id, '*Namoral que tu ta falando com o bot\?*');
+                        $this->newMessage('CorAnteBot', $sender['username'], 'Namoral que tu ta falando com o bot?');
                     }else{
                         $this->reply(
-                            $message->reply_to_message->message_id,
+                            $message->from->username,
+                            $message->reply_to_message->text,
                             $text
                         );
                     }
                 }
                 break;
             default:
-            $messageId = $this->botSend($sender['chat_id'], "*Que comando é esse que nem eu conhecia\?*\n");
-            $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Comando desconhecido', $messageId);
+            $this->botSend($sender['chat_id'], "*Que comando é esse que nem eu conhecia\?*\n");
+            $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Comando desconhecido');
                 break;
         }
     }
@@ -204,7 +218,7 @@ class CorAnteController extends Controller
     }
 
     private function welcomeMessage(){
-        return "*Bem vindo ao bot\!\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*Aproveite sua estadia\!*";
+        return "*Bem vindo ao bot\!\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta*\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*Aproveite sua estadia\!*";
     }
 
     /** Função principal da aplicação
@@ -226,7 +240,7 @@ class CorAnteController extends Controller
                         $message->from->id,
                         '*Poe username ae\, faz favor\.*'
                     );
-                    $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Poe username ae, faz favor.', $messageId);
+                    $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Poe username ae, faz favor.');
                 }else{
                     $trio = $this->splitsCommands($message->text);
                     $command = $trio[0];
@@ -234,11 +248,11 @@ class CorAnteController extends Controller
                     $sender['username'] = $message->from->username;
                     if($command == 'start'){
                         if($this->register($sender)){
-                            $messageId = $this->botSend(
+                            $this->botSend(
                                 $sender['chat_id'],
                                 $this->welcomeMessage()
                             );
-                            $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Mensagem de boas vindas', $messageId);
+                            $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Mensagem de boas vindas');
                         }
                     }else if($userOk){
                         $this->commands($command, $trio, $sender, $message);
@@ -247,36 +261,12 @@ class CorAnteController extends Controller
                             $message->from->id,
                             "*Se cadastra aí mandando \'/start\'\, faz favor\. Obrigado\.*"
                         ); 
-                        $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Se cadastra aí faz favor, obrigado.', $messageId);
+                        $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Se cadastra aí faz favor, obrigado.');
                     }
                 }
             }
             return response()->json('Tudo certo por enquanto :)');
         }
         return response()->json('Nada de novo debaixo do céu hoje');
-    }
-
-    /** Serve pra caso a pessoa operando o bot queira mandar uma mensagem */
-    public function sendManual(Request $request){
-        if($request->chat_id == '*'){
-            $ecompers = Ecomper::all();
-            $data = [];
-            foreach($ecompers as $ecomper){
-                $target = $ecomper->chat_id;
-                $response = $dataApi::sendMessage($target, $request->text);
-                $aux = [
-                    'Nome' => $ecomper->username,
-                    'Status' => $response->ok ? 'Sucesso' : 'Algo de errado não estava certo'
-                ];
-                array_push($data, $aux);
-            }
-            return response()->json([
-                'Mensagem' => 'Parabéns você acaba de floodar a empresa! -10 pontos para a Camila',
-                'Dados' => $data
-            ], 200); 
-        }
-        $target = $request->chat_id;
-        $response = Api::sendMessage($target, $request->text);
-        return response()->json($response);
     }
 }
