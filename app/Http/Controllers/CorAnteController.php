@@ -160,7 +160,7 @@ class CorAnteController extends Controller
         $ecompers = Ecomper::all('name', 'username');
         $stringGiven = '';
         foreach($ecompers as $ecomper){
-            $stringGiven .= "\n$ecomper->name \=\> $ecomper->username";
+            $stringGiven .= "\n$ecomper->name => $ecomper->username";
         }
 
         return $stringGiven;
@@ -175,7 +175,7 @@ class CorAnteController extends Controller
                 $ok = $helper->validatesSend($trio);
                 if(!$ok[0]){
                     $string = $message->text;
-                    $messageId = $this->botSend($sender->chat_id, "*Algo de errado não está certo\!*\n" . $ok[1] . "\n\n*O que você enviou\:* $string\n\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'*\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*");
+                    $messageId = $this->botSend($sender->chat_id, "Algo de errado não está certo!\n" . $ok[1] . "\n\nO que você enviou: $string\n\nPara enviar mensagens, utilize '/send Username Mensagem de texto'*\n*O ESPAÇO ENTRE COMANDO - DESTINATARIO/TEXTO - TEXTO É OBRIGATÓRIO");
                     $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Pessoa errou no /send');
                 }else{
                     $target = $trio[1];
@@ -192,15 +192,15 @@ class CorAnteController extends Controller
                 $ok = $helper->validatesReply($trio);
                 if(!$ok[0]){
                     $string = $message->text; 
-                    $this->botSend($sender['chat_id'], "*Algo de errado não está certo\!*\n" . $ok[1] . "\n\n*O que você enviou\:* $string\n\n*Para responder a uma mensagem\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO\n");
+                    $this->botSend($sender['chat_id'], "Algo de errado não está certo!\n" . $ok[1] . "\n\nO que você enviou: $string\n\nPara responder a uma mensagem, responda à mensagem normalmente e no texto de resposta utilize '/reply Texto de resposta'\nO ESPAÇO ENTRE COMANDO - DESTINATARIO/TEXTO - TEXTO É OBRIGATÓRIO\n");
                     $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply');
                 }else{
                     $text = $trio[1];
                     if(!isset($message->reply_to_message)){
-                        $this->botSend($message->from->id, '*Você precisa responder à mensagem para que tudo ocorra bem\.*');
+                        $this->botSend($message->from->id, 'Você precisa responder à mensagem para que tudo ocorra bem.');
                         $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply - não respondeu');
                     }else if($this->whoSent($message->reply_to_message->text) == 'CorAnteBot'){
-                        $this->botSend($message->from->id, '*Namoral que tu ta falando com o bot\?*');
+                        $this->botSend($message->from->id, 'Namoral que tu ta falando com o bot\?');
                         $this->newMessage('CorAnteBot', $sender['username'], 'Namoral que tu ta falando com o bot?');
                     }else{
                         $this->reply(
@@ -212,7 +212,7 @@ class CorAnteController extends Controller
                 }
                 break;
             default:
-            $this->botSend($sender['chat_id'], "*Que comando é esse \($command\) que nem eu conhecia\?*\n");
+            $this->botSend($sender['chat_id'], "Que comando é esse ($command) que nem eu conhecia?\n");
             $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Comando desconhecido');
                 break;
         }
@@ -226,7 +226,7 @@ class CorAnteController extends Controller
     }
 
     private function welcomeMessage($color){
-        return "*Bem vindo ao bot\! Sua cor é \@$color\@*\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'*\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta*\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*NOTA\: Todas as mensagens enviadas pelo bot serão gravadas no BD do operador do bot \(Alguem de DH\)*\n*Aproveite sua estadia\!*";
+        return "Bem vindo ao bot! Sua cor é @$color@\nPara enviar mensagens, utilize '/send Username Mensagem de texto'\nPara responder a mensagens, responda à mensagem normalmente e no texto de resposta utilize '/reply Texto de resposta'\nO ESPAÇO ENTRE COMANDO - DESTINATARIO/TEXTO - TEXTO É OBRIGATÓRIO\nNOTA: Todas as mensagens enviadas pelo bot serão gravadas no BD do operador do bot (Alguem de DH)\nAproveite sua estadia!";
     }
 
     /** Função principal da aplicação
@@ -246,7 +246,7 @@ class CorAnteController extends Controller
                 if(!isset($message->from->username)){
                     $messageId = $this->botSend(
                         $message->from->id,
-                        '*Poe username ae\, faz favor\.*'
+                        'Poe username ae, faz favor.'
                     );
                     $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Poe username ae, faz favor.');
                 }else{
@@ -275,7 +275,7 @@ class CorAnteController extends Controller
                     }else{
                         $messageId = $this->botSend(
                             $message->from->id,
-                            "*Se cadastra aí mandando \'/start\'\, faz favor\. Obrigado\.*"
+                            "Se cadastra aí mandando '/start', faz favor. Obrigado."
                         ); 
                         $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Se cadastra aí faz favor, obrigado.');
                     }
