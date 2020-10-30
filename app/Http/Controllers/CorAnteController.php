@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Library\Api;
 use App\Ecomper;
 use App\Message;
-use App\Helpers\{Validators, ColorHandler};
+use App\Helpers\{Helper, Validators, ColorHandler};
 use Illuminate\Database\QueryException;
+use Log;
 
 class CorAnteController extends Controller
 {
@@ -103,6 +104,7 @@ class CorAnteController extends Controller
         }
         $color = new ColorHandler;
         $data = [
+            'name' => $sender['name'],
             'chat_id' => $sender['chat_id'],
             'username' => $sender['username'],
             'fakeIdentifier' => $color->getColor()
@@ -153,7 +155,15 @@ class CorAnteController extends Controller
         }
         return null;
     }
+    private function allEcompers(){
+        $ecompers = Ecomper::all('name', 'username');
+        $stringGiven = '';
+        foreach($ecompers as $ecomper){
+            $stringGiven .= "\n$ecomper->name \=\> $ecomper->username";
+        }
 
+        return $stringGiven;
+    }
     // DAQUI PARTEM $THIS->SEND E $THIS->REPLY
     private function commands($command, $trio, $sender, $message){
         error_log("commands\n");
@@ -215,7 +225,7 @@ class CorAnteController extends Controller
     }
 
     private function welcomeMessage($color){
-        return "*Bem vindo ao bot\! Sua cor é \@$color\@*\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'*\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta*\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*Aproveite sua estadia\!*";
+        return "*Bem vindo ao bot\! Sua cor é \@$color\@*\n*Para enviar mensagens\, utilize \'/send Username Mensagem de texto\'*\n*Para responder a mensagens\, responda à mensagem normalmente e no texto de resposta utilize \'/reply Texto de resposta*\'\n*O ESPAÇO ENTRE COMANDO \- DESTINATARIO/TEXTO \- TEXTO É OBRIGATÓRIO*\n*NOTA\: Todas as mensagens enviadas pelo bot serão gravadas no BD do operador do bot \(Alguem de DH\)*\n*Aproveite sua estadia\!*";
     }
 
     /** Função principal da aplicação
@@ -241,8 +251,7 @@ class CorAnteController extends Controller
                 }else{
                     $trio = $this->splitsCommands($message->text);
                     $command = $trio[0];
-                    $sender['chat_id'] = $message->from->id;
-                    $sender['username'] = $message->from->username;
+                    $sender = Helper::setSender($message);
                     if($command == 'start'){
                         $newEcomper = $this->register($sender);
                         if($newEcomper){
@@ -252,6 +261,13 @@ class CorAnteController extends Controller
                             );
                             $this->newMessage('CorAnteBot', $newEcomper->username, 'Mensagem de boas vindas');
                         }
+                    }else if($userOk && $command == 'ecompers'){
+                        $aux = $this->allEcompers();
+                        $this->botSend(
+                            $sender['chat_id'],
+                            $aux
+                        );
+                        $this->newMessage('CorAnteBot', $sender['username'], 'Mostrando todos os ecompers');
                     }else if($userOk){
                         $this->commands($command, $trio, $sender, $message);
                     }else{
@@ -263,8 +279,8 @@ class CorAnteController extends Controller
                     }
                 }
             }
-            return response()->json('Tudo certo por enquanto :)');
+            Log::channel('telebot')->info('Mensagen processada. Sem erros.');
         }
-        return response()->json('Nada de novo debaixo do céu hoje');
+        Log::channel('telebot')->info('Nada de novo embaixo do céu. Nenhuma mensagem nova, também.');
     }
 }

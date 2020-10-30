@@ -48,7 +48,7 @@ class Api{
         }
         return $response->result;
     }
-
+    
     public static function update(){
         error_log("update\n");
         $token = config('services.Telegram')['token'].'/';
