@@ -100,7 +100,7 @@ class CorAnteController extends Controller
 
     private function register($sender){
         if($this->searchEcomperByUser($sender['username'])){
-            $this->botSend($sender['chat_id'],'*Você já está cadastrado*');
+            $this->botSend($sender['chat_id'],'Você já está cadastrado');
             return false;
         }
         $color = new ColorHandler;

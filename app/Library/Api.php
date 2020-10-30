@@ -36,7 +36,6 @@ class Api{
         ]);
 
         $response = json_decode($response);
-        dd($response);
         if(!isset($response->result)){
             Log::channel('telebot')->error("A mensagem:\n---------------\n$message\n---------------\npara <$target> não pode ser enviada. Faria as honras de entregar?\nPara saber quem é, basta olhar no banco de dados de quem é o id $target");
             return -1;
