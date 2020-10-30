@@ -27,22 +27,16 @@ class Api{
         return collect($response['result']);
     }
 
-    public static function sendMessage($target, $message, $isBot = false){
+    public static function sendMessage($target, $message){
         $token = config('services.Telegram')['token'].'/';
         $method = 'sendMessage';
-        if($isBot){
-            $response = Http::get(Api::$baseURL.$token.$method, [
-                'chat_id' => $target,
-                'text' => $message,
-                'parse_mode' => 'MarkdownV2'
-            ]);
-        }else{
-            $response = Http::get(Api::$baseURL.$token.$method, [
-                'chat_id' => $target,
-                'text' => $message
-            ]);
-        }
+        $response = Http::get(Api::$baseURL.$token.$method, [
+            'chat_id' => $target,
+            'text' => $message
+        ]);
+
         $response = json_decode($response);
+        dd($response);
         if(!isset($response->result)){
             Log::channel('telebot')->error("A mensagem:\n---------------\n$message\n---------------\npara <$target> não pode ser enviada. Faria as honras de entregar?\nPara saber quem é, basta olhar no banco de dados de quem é o id $target");
             return -1;

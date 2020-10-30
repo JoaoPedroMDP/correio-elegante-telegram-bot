@@ -56,7 +56,7 @@ class CorAnteController extends Controller
     private function botSend($targetId, $message){
         // Precisa ser antes para caso a pessoa ainda nao tenha se cadastrado e tente mandar mensagem.
         // Nesse caso precisamos enviar a ela uma mensagem dizendo que precisa se cadastrar
-        Api::sendMessage($targetId, $message, $isBot = true);
+        Api::sendMessage($targetId, $message);
     }
 
     private function send($sender, $target, $message, $replyMessageId = null){
@@ -69,7 +69,7 @@ class CorAnteController extends Controller
         }else{
             if(isset($replyMessageId)){
                 $message = 'Resposta de @' . $sender->fakeIdentifier . "@:\n" . $message;
-                $botMessageId = Api::sendMessage($target->chat_id, $message, $replyMessageId);
+                $botMessageId = Api::sendMessage($target->chat_id, $message);
             }else{
                 $message = 'Mensagem de @' . $sender->fakeIdentifier . "@:\n" . $message;
                 $botMessageId = Api::sendMessage($target->chat_id, $message);
