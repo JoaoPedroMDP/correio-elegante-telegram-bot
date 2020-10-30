@@ -81,17 +81,18 @@ class CorAnteController extends Controller
         }
     }
 
-    private function newMessage($senderUsername, $target, $text){
+    private function newMessage($senderUsername, $targetUsername, $text){
         try{
             $message = Message::create([
                 'sender' => $senderUsername,
-                'receiver' => $target,
+                'receiver' => $targetUsername,
                 'text' => $text
             ]);
         }catch(QueryException $e){
+            Log::channel('telebot')->warning($senderUsername . ' mandou uma mensagem muito grande. Um placeholder será armazenado no lugar do texto');
             $message = Message::create([
                 'sender' => $senderUsername,
-                'receiver' => $target,
+                'receiver' => $targetUsername,
                 'text' => 'Mensagem era muito grande'
             ]);
         }
@@ -270,6 +271,7 @@ class CorAnteController extends Controller
                         $this->newMessage('CorAnteBot', $sender['username'], 'Mostrando todos os ecompers');
                     }else if($userOk){
                         $this->commands($command, $trio, $sender, $message);
+                        Log::channel('telebot')->info('Comando '. $trio[0] .' de '. $sender['username'] .' processado. Sem erros.');
                     }else{
                         $messageId = $this->botSend(
                             $message->from->id,
@@ -279,8 +281,8 @@ class CorAnteController extends Controller
                     }
                 }
             }
-            Log::channel('telebot')->info('Mensagen processada. Sem erros.');
+        }else{
+            Log::channel('telebot')->info('Nada de novo embaixo do céu. Nenhuma mensagem nova, também.');
         }
-        Log::channel('telebot')->info('Nada de novo embaixo do céu. Nenhuma mensagem nova, também.');
     }
 }
