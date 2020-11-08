@@ -13,7 +13,10 @@ use Log;
 
 class CorAnteController extends Controller
 {
-
+    private function sanitize($message){
+        $sanitized = str_replace( '"', '', $message);
+        return $sanitized;
+    }
     /** Recebe a string enviada pelo usuário e a separa em partes
      * Se for /send, recebe algo como '/send DESTINATARIO MENSAGEM'
      * e retorna um array [COMANDO, DESTINATARIO, MENSAGEM]
