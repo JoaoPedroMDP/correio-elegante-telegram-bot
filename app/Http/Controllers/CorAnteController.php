@@ -13,10 +13,7 @@ use Log;
 
 class CorAnteController extends Controller
 {
-    private function sanitize($message){
-        $sanitized = str_replace( '"', '', $message);
-        return $sanitized;
-    }
+
     /** Recebe a string enviada pelo usuário e a separa em partes
      * Se for /send, recebe algo como '/send DESTINATARIO MENSAGEM'
      * e retorna um array [COMANDO, DESTINATARIO, MENSAGEM]
@@ -52,10 +49,7 @@ class CorAnteController extends Controller
         array_splice($data, $start);
         // Se o COMANDO for 'start', não existem outros argumentos,
         // portanto preciso enviar apenas o 'start'
-        if(isset($text)){
-            $text = $this->sanitize($text);
-        }
-        $data[0] != 'start' && $text != '' ? array_push($data, $this->sanitize($text)) : null;
+        $data[0] != 'start' && $text != '' ? array_push($data, $text) : null;
         return $data;
     }
 
@@ -232,7 +226,7 @@ class CorAnteController extends Controller
     }
 
     private function welcomeMessage($color){
-        return "Bem vindo ao bot! Sua cor é @$color@\nPara enviar mensagens, utilize '/send Username Mensagem de texto'\nPara responder a mensagens, responda à mensagem normalmente e no texto de resposta utilize '/reply Texto de resposta'\nPara ver todos os ecompers use'/ecompers'\nO ESPAÇO ENTRE COMANDO - DESTINATARIO/TEXTO - TEXTO É OBRIGATÓRIO\nNOTA: Todas as mensagens enviadas pelo bot serão gravadas no BD do operador do bot (Alguem de DH)\nAproveite sua estadia!";
+        return "Bem vindo ao bot! Sua cor é @$color@\nPara enviar mensagens, utilize '/send Username Mensagem de texto'\nPara responder a mensagens, responda à mensagem normalmente e no texto de resposta utilize '/reply Texto de resposta'\nO ESPAÇO ENTRE COMANDO - DESTINATARIO/TEXTO - TEXTO É OBRIGATÓRIO\nNOTA: Todas as mensagens enviadas pelo bot serão gravadas no BD do operador do bot (Alguem de DH)\nAproveite sua estadia!";
     }
 
     /** Função principal da aplicação
@@ -276,13 +270,6 @@ class CorAnteController extends Controller
                         );
                         $this->newMessage('CorAnteBot', $sender['username'], 'Mostrando todos os ecompers');
                     }else if($userOk){
-                        if(isset($message->reply_to_message)){
-                            $trio[0] = 'reply';
-                            if(isset($trio[1])){
-                                $trio[1] .= ' ' . isset($trio[2]) ? $trio[2] : '';
-                            }
-                            $command = 'reply';
-                        }
                         $this->commands($command, $trio, $sender, $message);
                         Log::channel('telebot')->info('Comando '. $trio[0] .' de '. $sender['username'] .' processado. Sem erros.');
                     }else{
