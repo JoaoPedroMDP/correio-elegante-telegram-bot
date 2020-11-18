@@ -17,6 +17,7 @@ class CorAnteController extends Controller
         $sanitized = str_replace( '"', '', $message);
         return $sanitized;
     }
+    
     /** Recebe a string enviada pelo usuário e a separa em partes
      * Se for /send, recebe algo como '/send DESTINATARIO MENSAGEM'
      * e retorna um array [COMANDO, DESTINATARIO, MENSAGEM]
@@ -122,12 +123,11 @@ class CorAnteController extends Controller
     }
 
     private function reply($replyTarget, $originalMessage, $text){
-
         $target = $this->whoSent($originalMessage);
         $sender = $this->searchEcomperByUser($replyTarget);
-        $ok = $this->send($sender->chat_id, $target->username, $text);
+        $ok = $this->send($sender->chat_id, $target->username, $text, $isReply = true);
         if($ok)
-            $this->newMessage($sender->username, $target->username, $text);
+        $this->newMessage($sender->username, $target->username, $text);
     }
 
     private function searchEcomperByUser($username){
@@ -162,6 +162,7 @@ class CorAnteController extends Controller
         }
         return null;
     }
+
     private function allEcompers(){
         $ecompers = Ecomper::all('name', 'username');
         $stringGiven = '';
@@ -171,6 +172,7 @@ class CorAnteController extends Controller
 
         return $stringGiven;
     }
+
     // DAQUI PARTEM $THIS->SEND E $THIS->REPLY
     private function commands($command, $trio, $sender, $message){
         error_log("commands\n");
@@ -278,8 +280,10 @@ class CorAnteController extends Controller
                     }else if($userOk){
                         if(isset($message->reply_to_message)){
                             $trio[0] = 'reply';
+                            // dd($trio);
                             if(isset($trio[1])){
-                                $trio[1] .= ' ' . isset($trio[2]) ? $trio[2] : '';
+                                $aux = isset($trio[2]) ? $trio[2] : '';
+                                $trio[1] .= ' ' . $aux;
                             }
                             $command = 'reply';
                         }
