@@ -22,38 +22,7 @@ interface CommandInterface
     public function handleException(Exception $exception);
 
     /**
-     * @return User
+     * @return void
      */
-    public function getSender(): User;
-
-
-    /**
-     * @param User $sender
-     */
-    public function setSender(User $sender): void;
-
-
-    /**
-     * @return User
-     */
-    public function getTarget(): User;
-
-
-    /**
-     * @param User $target
-     */
-    public function setTarget(User $target): void;
-
-
-    /**
-     * @return string
-     */
-    public function getMessage(): string;
-
-
-    /**
-     * @param string $message
-     */
-    public function setMessage(string $message): void;
-
+    public function persistMessageInDatabase();
 }

@@ -6,7 +6,8 @@ namespace App\Domains\Commands;
 
 
 use App\Domains\Core\Interfaces\CommandInterface;
-use App\Domains\Telegram\Handlers\TelegramServices;
+use App\Domains\Message\Services\MessageServices;
+use App\Domains\Telegram\Services\TelegramServices;
 use App\User;
 use Exception;
 
@@ -16,6 +17,7 @@ use Exception;
  */
 class SendCommand implements CommandInterface
 {
+    private const SEND_COMMAND_MESSAGE_OFFSET = 2;
     /**
      * @var User
      */
@@ -37,17 +39,28 @@ class SendCommand implements CommandInterface
     private $telegramServices;
 
     /**
+     * @var MessageServices
+     */
+    private $messageServices;
+
+    /**
      * SendCommand constructor.
      * @param User $sender
      * @param User $target
-     * @param string $message
+     * @param string $rawText
      */
-    public function __construct(User $sender, User $target, string $message)
+    public function __construct(User $sender, User $target, string $rawText)
     {
+        $this->telegramServices = new TelegramServices();
+        $this->messageServices = new MessageServices();
+
         $this->sender = $sender;
         $this->target = $target;
-        $this->message = $message;
-        $this->telegramServices = new TelegramServices();
+
+        $words = explode(' ', $rawText);
+        for( $i = self::SEND_COMMAND_MESSAGE_OFFSET ; $i < count($words) - 1 ; $i++){
+            $this->message .= $words[$i];
+        }
     }
 
     public function execute()
@@ -68,50 +81,10 @@ class SendCommand implements CommandInterface
     }
 
     /**
-     * @return User
+     * Persists this message in database
      */
-    public function getSender(): User
+    public function persistMessageInDatabase()
     {
-        return $this->sender;
-    }
-
-    /**
-     * @param User $sender
-     */
-    public function setSender(User $sender): void
-    {
-        $this->sender = $sender;
-    }
-
-    /**
-     * @return User
-     */
-    public function getTarget(): User
-    {
-        return $this->target;
-    }
-
-    /**
-     * @param User $target
-     */
-    public function setTarget(User $target): void
-    {
-        $this->target = $target;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMessage(): string
-    {
-        return $this->message;
-    }
-
-    /**
-     * @param string $message
-     */
-    public function setMessage(string $message): void
-    {
-        $this->message = $message;
+        $this->messageServices->registerNewMessage($this->message, $this->sender->getUsername(), $this->target->getUsername());
     }
 }

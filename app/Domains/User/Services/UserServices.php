@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domains\User\Services;
 
 
-use App\Domains\User\Exceptions\UserNotFound;
 use App\Domains\User\Persistence\UserRepository;
 use App\User;
 
@@ -30,17 +29,11 @@ class UserServices
     }
 
     /**
-     * @param int $id
-     * @return User
-     * @throws UserNotFound
+     * @param string $username
+     * @return User|null
      */
-    public function getUserByChatId(int $id): User
+    public function getUserByUsername(string $username): ?User
     {
-        $user = $this->userRepository->getUserByChatId($id);
-        if(is_null($user)){
-            throw new UserNotFound();
-        }
-
-        return $user;
+        return $this->userRepository->getUserByUsername($username);
     }
 }

@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Message
- * @property mixed sender
- * @property mixed receiver
- * @property mixed|string text
  * @package App
  */
 class Message extends Model
@@ -17,38 +14,38 @@ class Message extends Model
     /**
      * @var string[]
      */
-    protected $fillable= ['sender', 'receiver', 'text'];
+    protected $fillable= ['sender_chat_id', 'target_chat_id', 'text'];
 
     /**
      * @return string
      */
-    public function getSender(): string
+    public function getSenderChatId(): string
     {
-        return $this->sender;
+        return $this->sender_chat_id;
     }
 
     /**
-     * @param string $sender
+     * @param string $sender_chat_id
      */
-    public function setSender(string $sender): void
+    public function setSenderChatId(string $sender_chat_id): void
     {
-        $this->sender = $sender;
+        $this->sender_chat_id = $sender_chat_id;
     }
 
     /**
      * @return string
      */
-    public function getReceiver(): string
+    public function getTargetChatId(): string
     {
-        return $this->receiver;
+        return $this->target_chat_id;
     }
 
     /**
-     * @param string $receiver
+     * @param string $target_chat_id
      */
-    public function setReceiver(string $receiver): void
+    public function setTargetChatId(string $target_chat_id): void
     {
-        $this->receiver = $receiver;
+        $this->target_chat_id = $target_chat_id;
     }
 
     /**
@@ -66,6 +63,5 @@ class Message extends Model
     {
         $this->text = $text;
     }
-
 
 }

@@ -2,17 +2,16 @@
 declare(strict_types=1);
 
 
-namespace App\Domains\User\Exceptions;
+namespace App\Domains\User\Exceptions\Message;
 
-
-use Exception;
+use App\Domains\User\Exceptions\MessageException;
 use Throwable;
 
 /**
- * Class UserNotFound
+ * Class SenderNotFound
  * @package App\Domains\User\Exceptions
  */
-class UserNotFound extends Exception
+class SenderNotFound extends MessageException
 {
     /**
      * Construct the exception. Note: The message is NOT binary safe.
@@ -21,7 +20,12 @@ class UserNotFound extends Exception
      * @param int $code [optional] The Exception code.
      * @param null|Throwable $previous [optional] The previous throwable used for the exception chaining.
      */
-    public function __construct($message = "Usuário não encontrado", $code = 0, Throwable $previous = null)
+    public function __construct
+    (
+        $message = "Remetente não encontrado no banco de dados",
+        $code = 0,
+        Throwable $previous = null
+    )
     {
         parent::__construct($message, $code, $previous);
     }

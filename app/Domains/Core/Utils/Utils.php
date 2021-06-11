@@ -15,7 +15,7 @@ class Utils
      * @var string[]
      */
     private $httpMethods = [
-        "toSendMessages" => "GET",
+        "toSendMessage" => "GET",
         "toGetUpdates" => "GET"
     ];
 
@@ -23,7 +23,7 @@ class Utils
      * @var string[]
      */
     private $telegramMethods = [
-        "toSendMessages" => "sendMessage",
+        "toSendMessage" => "sendMessage",
         "toGetUpdates" => "getUpdates"
     ];
 

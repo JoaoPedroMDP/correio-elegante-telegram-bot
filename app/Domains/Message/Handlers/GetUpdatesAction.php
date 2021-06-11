@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Message\Handlers;
 
 
-use App\Domains\Core\Services\UpdateServices;
+use App\Domains\Update\Services\UpdateServices;
 use App\Domains\Telegram\Exception\NoMessages;
 use App\Domains\Telegram\Services\TelegramServices;
 use Exception;
@@ -31,13 +31,11 @@ class GetUpdatesAction
 
     /**
      * GetUpdatesAction constructor.
-     * @param TelegramServices $telegramServices
-     * @param UpdateServices $updateServices
      */
-    public function __construct(TelegramServices $telegramServices, UpdateServices $updateServices)
+    public function __construct()
     {
-        $this->telegramServices = $telegramServices;
-        $this->updateServices = $updateServices;
+        $this->telegramServices = new TelegramServices();
+        $this->updateServices = new UpdateServices();
     }
 
     public function handle(){
@@ -49,17 +47,18 @@ class GetUpdatesAction
             $messageCount = $updates->count();
             $this->updateServices->handleUpdates($updates);
 
+            $now = Carbon::now()->format("d/m/Y i:s");
+            TeleLogger::log("$messageCount mensagens foram processadas em $now",'info');
         }catch(NoMessages $noMessages){
             TeleLogger::log($noMessages->getMessage(),'info');
         }catch(Exception $exception){
+            dd($exception);
             TeleLogger::log($exception->getMessage(),'error');
             TeleLogger::log("\n" . $exception->getTraceAsString(),'error');
         }catch(Throwable $throwable){
+            dd($throwable);
             TeleLogger::log($throwable->getMessage(),'error');
             TeleLogger::log("\n" . $throwable->getTraceAsString(),'error');
         }
-
-        $now = Carbon::now()->format("d/m/Y i:s");
-        TeleLogger::log("$messageCount mensagens foram processadas em $now",'info');
     }
 }

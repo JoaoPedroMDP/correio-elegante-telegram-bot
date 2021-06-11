@@ -15,13 +15,18 @@ class MessageRepository
 {
     /**
      * @param string $text
-     * @param string $senderUsername
-     * @param string $targetUsername
+     * @param string $senderChatId
+     * @param string $targetChatId
+     * @return Message
      */
-    public function storeMessage(string $text, string $senderUsername, string $targetUsername){
+    public function storeMessage(string $text, string $senderChatId, string $targetChatId): Message
+    {
         $message = new Message;
-        $message->setReceiver($targetUsername);
-        $message->setSender($senderUsername);
+        $message->setTargetChatId($targetChatId);
+        $message->setSenderChatId($senderChatId);
         $message->setText($text);
+
+        $message->save();
+        return $message;
     }
 }
