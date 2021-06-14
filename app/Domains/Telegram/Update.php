@@ -41,12 +41,20 @@ class Update
     public $senderName;
 
     /**
+     * @var bool
+     */
+    public $isBot;
+
+    /**
      * Update constructor.
      */
     public function __construct(array $updateData)
     {
         $this->rawText = $updateData['message']['text'];
+        $this->isBot = $updateData['message']['from']['is_bot'];
         $this->senderName = $updateData['message']['from']['first_name'] ?? null;
+        $this->senderTid = $updateData['message']['from']['id'];
+        $this->senderUsername = $updateData['message']['from']['username'];
 
         if(isset($updateData['message']['entities']) &&
             $updateData['message']['entities'][0]['type'] == 'bot_command')
@@ -58,9 +66,6 @@ class Update
                 $updateData['message']['text']
             );
         }
-
-        $this->senderTid = strval($updateData['message']['from']['id']);
-        $this->senderUsername = $updateData['message']['from']['username'];
     }
 
     /**
@@ -77,7 +82,7 @@ class Update
     /**
      * @return string
      */
-    public function getRawText()
+    public function getRawText(): string
     {
         return $this->rawText;
     }
@@ -170,5 +175,20 @@ class Update
         $this->senderName = $senderName;
     }
 
+    /**
+     * @return bool
+     */
+    public function isBot(): bool
+    {
+        return $this->isBot;
+    }
+
+    /**
+     * @param bool $isBot
+     */
+    public function setIsBot(bool $isBot): void
+    {
+        $this->isBot = $isBot;
+    }
 
 }

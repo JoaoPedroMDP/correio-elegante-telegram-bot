@@ -7,6 +7,9 @@ namespace App\Domains\Commands;
 
 use App\Domains\Core\Interfaces\CommandInterface;
 use App\Domains\Core\Services\CoreServices;
+use App\Domains\Message\Services\MessageServices;
+use App\Domains\User\Exceptions\User\BotUserMissing;
+use App\Domains\User\Exceptions\User\UserCouldNotBeCreated;
 use App\Domains\User\Services\UserServices;
 use Exception;
 
@@ -52,6 +55,11 @@ class StartCommand implements CommandInterface
     private $coreServices;
 
     /**
+     * @var MessageServices
+     */
+    private $messageServices;
+
+    /**
      * StartCommand constructor.
      * @param string $senderName
      * @param string $senderUsername
@@ -66,32 +74,51 @@ class StartCommand implements CommandInterface
         $this->isBot = $isBot;
         $this->userServices = new UserServices();
         $this->coreServices = new CoreServices();
+        $this->messageServices = new MessageServices();
     }
-
 
     public function execute()
     {
-        $this->setFakeIdentifier($this->coreServices->generateFakIdentifier());
+        try{
+            $this->setFakeIdentifier($this->coreServices->generateFakIdentifier());
 
-        $params = [
-            "name" => $this->senderName,
-            "username"=> $this->senderUsername,
-            "fakeIdentifier"=> $this->fakeIdentifier,
-            "chat_id"=> $this->senderTid,
-            "is_bot"=> $this->isBot
-        ];
+            $params = [
+                "name" => $this->senderName,
+                "username"=> $this->senderUsername,
+                "fakeIdentifier"=> $this->fakeIdentifier,
+                "chat_id"=> $this->senderTid,
+                "is_bot"=> $this->isBot
+            ];
 
-        $this->userServices->storeUser()
+            $user = $this->userServices->storeUser($params);
+        }catch(Exception $exception){
+            $this->handleException($exception);
+        }
     }
 
+    /**
+     * @param Exception $exception
+     */
     public function handleException(Exception $exception)
     {
         // TODO: Implement handleException() method.
     }
 
+    /**
+     * @throws BotUserMissing
+     */
     public function persistMessageInDatabase()
     {
-        // TODO: Implement persistInDatabase() method.
+        $params = [
+            "message" => "Usuário se registrando no bot",
+            "senderTid" => $this->senderTid,
+            "targetTid" => $this->userServices->returnBotUser()->getChatId()
+        ];
+        $this->messageServices->registerNewMessage(
+            $text = "Usuário se registrando no bot",
+            $sender = $this->senderUsername,
+            $target = $this->userServices->returnBotUser()->getUsername()
+        );
     }
 
     // GETTERS && SETTERS GETTERS && SETTERS GETTERS && SETTERS GETTERS && SETTERS

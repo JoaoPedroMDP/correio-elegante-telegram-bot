@@ -34,25 +34,32 @@ class MessageServices
     }
 
     /**
-     * @param string $text
-     * @param string $sender
-     * @param string $target
+     * @param array $data
      */
-    public function registerNewMessage(string $text, string $sender, string $target): void
+    public function registerNewMessage(array $data): void
     {
-        $this->messageRepository->storeMessage($text, $sender, $target);
+        $this->messageRepository->storeMessage(
+            $data['message'],
+            $data['senderTid'],
+            $data['targetTid']
+        );
     }
 
     /**
-     * @param string $senderChatId
-     * @param string $targetChatId
+     * @param string $senderTid
+     * @param string $targetTid
      * @param string $message
      * @throws Exception
      */
-    public function sendMessage(string $senderChatId, string $targetChatId, string $message)
+    public function sendMessage(string $senderTid, string $targetTid, string $message)
     {
-        $this->telegramServices->sendMessage($message, intval($targetChatId));
+        $this->telegramServices->sendMessage($message, intval($targetTid));
 
-        $this->registerNewMessage($message,$senderChatId, $targetChatId);
+        $params = [
+            "message" => $message,
+            "senderTid" => $senderTid,
+            "targetTid" => $targetTid
+        ];
+        $this->registerNewMessage($params);
     }
 }

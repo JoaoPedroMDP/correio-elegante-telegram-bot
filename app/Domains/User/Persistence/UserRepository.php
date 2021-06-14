@@ -6,6 +6,7 @@ namespace App\Domains\User\Persistence;
 
 
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class UserRepository
 {
+    const BOT_ID = 1;
 
     /**
      * Retrieves the user based on its Telegram User Id
@@ -34,5 +36,22 @@ class UserRepository
     {
         $user = new User();
         return $user->where('username', $username)->first();
+    }
+
+    /**
+     * @param array $data
+     * @return User|Model
+     */
+    public function storeUser(array $data)
+    {
+        return (new User)->create($data);
+    }
+
+    /**
+     * @return User|User[]|Collection|Model|null
+     */
+    public function getBot()
+    {
+        return (new User)->find(self::BOT_ID);
     }
 }

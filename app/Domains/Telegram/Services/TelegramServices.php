@@ -132,8 +132,8 @@ class TelegramServices {
         $this->checkIfResultsExists($response);
         $results = $this->getResults($response);
 
-//        $this->setLastUpdateId($results->last()['update_id']);
-
+        $this->setLastUpdateId($results->last()['update_id']);
+        dd($results);
         return $results;
     }
 
@@ -170,7 +170,7 @@ class TelegramServices {
      */
     public function setLastUpdateId(int $lastUpdateId): void
     {
-        Cache::put('last_update', $lastUpdateId);
+//        Cache::put('last_update', $lastUpdateId);
     }
 
 }

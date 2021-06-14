@@ -14,38 +14,40 @@ class Message extends Model
     /**
      * @var string[]
      */
-    protected $fillable= ['sender_chat_id', 'target_chat_id', 'text'];
+    protected $fillable= [
+        'message_tid','sender_tid', 'target_tid', 'text'
+    ];
 
     /**
-     * @return string
+     * @return int
      */
-    public function getSenderChatId(): string
+    public function getSenderTid(): int
     {
-        return $this->sender_chat_id;
+        return $this->sender_tid;
     }
 
     /**
-     * @param string $sender_chat_id
+     * @param int $sender_tid
      */
-    public function setSenderChatId(string $sender_chat_id): void
+    public function setSenderTid(int $sender_tid): void
     {
-        $this->sender_chat_id = $sender_chat_id;
+        $this->sender_tid = $sender_tid;
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getTargetChatId(): string
+    public function getTargetTid(): int
     {
-        return $this->target_chat_id;
+        return $this->target_tid;
     }
 
     /**
-     * @param string $target_chat_id
+     * @param int $target_tid
      */
-    public function setTargetChatId(string $target_chat_id): void
+    public function setTargetTid(int $target_tid): void
     {
-        $this->target_chat_id = $target_chat_id;
+        $this->target_tid = $target_tid;
     }
 
     /**
@@ -62,6 +64,22 @@ class Message extends Model
     public function setText(string $text): void
     {
         $this->text = $text;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMessageTid(): int
+    {
+        return $this->messageTid;
+    }
+
+    /**
+     * @param int $messageTid
+     */
+    public function setMessageTid(int $messageTid): void
+    {
+        $this->messageTid = $messageTid;
     }
 
 }

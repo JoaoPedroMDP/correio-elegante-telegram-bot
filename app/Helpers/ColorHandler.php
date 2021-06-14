@@ -1,18 +1,53 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Helpers;
 
-use App\Helpers\AllColors;
-
-class ColorHandler extends AllColors{
+/**
+ * Class ColorHandler
+ * @package App\Helpers
+ */
+class ColorHandler extends AllColors
+{
     protected $used = [];
 
-    public function getColor(){
-        $index = rand(0, count($this->colors));
-        while(in_array($index, $this->used)){
-            $index = rand(0, count($this->colors - 1));
+    /**
+     * @return string
+     */
+    public function getColor(): string
+    {
+
+        $index = $this->rand();
+        while($this->colorWasTaken($index)){
+            $index = $this->rand();
         }
-        array_push($this->used, $index);
+
+        $this->takeColor($index);
         return $this->colors[$index];
+    }
+
+    /**
+     * @return int
+     */
+    private function rand(): int
+    {
+        return rand(0, count($this->colors) - 1);
+    }
+
+    /**
+     * @param int $index
+     * @return bool
+     */
+    private function colorWasTaken(int $index): bool
+    {
+        return isset($this->used[$index]);
+    }
+
+    /**
+     * @param int $index
+     */
+    private function takeColor(int $index)
+    {
+        $this->used[$index] = true;
     }
 }

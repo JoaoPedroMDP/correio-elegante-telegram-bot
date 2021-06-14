@@ -7,11 +7,14 @@ namespace App\Domains\Update\Services;
 
 use App\Domains\Commands\SendCommand;
 use App\Domains\Commands\Services\CommandServices;
+use App\Domains\Core\Interfaces\CommandInterface;
 use App\Domains\Core\Services\CoreServices;
+use App\Domains\Core\Services\ValidatorServices;
 use App\Domains\Core\Utils\TeleLogger;
 use App\Domains\Message\Exceptions\UserTalkingToBot;
 use App\Domains\Message\Services\MessageServices;
 use App\Domains\Telegram\Update;
+use App\Domains\Update\Exceptions\CommandNotFound;
 use App\Domains\User\Exceptions\Message\SenderNotFound;
 use App\Domains\User\Exceptions\Message\TargetNotFound;
 use App\Domains\User\Exceptions\MessageException;
@@ -49,6 +52,11 @@ class UpdateServices
     private $coreServices;
 
     /**
+     * @var ValidatorServices
+     */
+    private $validatorServices;
+
+    /**
      * UpdateServices constructor.
      */
     public function __construct()
@@ -57,6 +65,7 @@ class UpdateServices
         $this->userServices = new UserServices();
         $this->commandServices = new CommandServices();
         $this->coreServices = new CoreServices();
+        $this->validatorServices = new ValidatorServices();
     }
 
     /**
@@ -78,45 +87,37 @@ class UpdateServices
 
     /**
      * @param Update $update
-     * @throws TargetNotFound
      * @throws UserTalkingToBot
-     * @throws SenderNotFound
      */
     private function singleUpdate(Update $update)
     {
         if($update->isCommand){
-            $command = $this->instantiateCommand($update);
 
             try{
+                $command = $this->validateAndInstantiateCommand($update);
                 $command->execute();
+                $command->persistMessageInDatabase();
             }catch(Exception $exception){
                 TeleLogger::log($exception->getMessage(), 'error');
             }
 
-            $command->persistMessageInDatabase();
         }else{
             throw new UserTalkingToBot($update->getSenderTid());
         }
     }
 
     /**
-     * @param array $update
-     * @return bool
-     */
-    private function isCommand(array $update): bool
-    {
-        return isset($update['message']['entities']);
-    }
-
-    /**
      * @param Update $update
-     * @return SendCommand
+     * @return CommandInterface
+     * @throws CommandNotFound
+     * @throws SenderNotFound
+     * @throws TargetNotFound
      */
-    private function instantiateCommand(Update $update)
+    private function validateAndInstantiateCommand(Update $update): CommandInterface
     {
-//        dd()
         switch($update->command){
             case 'send':
+                $this->validatorServices->validateAndReturnSendData($update);
                 return $this->commandServices->instantiateSendCommand($update);
                 break;
             case 'reply':
@@ -125,6 +126,9 @@ class UpdateServices
                 break;
             case 'start':
                 return $this->commandServices->instantiateStartCommand($update);
+                break;
+            default:
+                throw new CommandNotFound($update->command);
                 break;
         }
     }

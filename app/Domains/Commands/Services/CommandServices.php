@@ -6,6 +6,7 @@ namespace App\Domains\Commands\Services;
 
 
 use App\Domains\Commands\SendCommand;
+use App\Domains\Commands\StartCommand;
 use App\Domains\Telegram\Update;
 use App\Domains\User\Exceptions\Message\{SenderNotFound, TargetNotFound};
 use App\Domains\User\Exceptions\User\UserNotFound;
@@ -64,10 +65,21 @@ class CommandServices
         return new SendCommand($sender, $target, $update->rawText);
     }
 
-    public function instantiateStartCommand(Update $update)
+    /**
+     * @param Update $update
+     * @return StartCommand
+     */
+    public function instantiateStartCommand(Update $update): StartCommand
     {
         $this->userServices();
         $this->userRepository();
+
+        return new StartCommand(
+            $update->getSenderName(),
+            $update->getSenderUsername(),
+            intval($update->getSenderTid()),
+            $update->isBot()
+        );
     }
 
     /**

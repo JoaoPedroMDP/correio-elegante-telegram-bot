@@ -17,7 +17,8 @@ use Exception;
  */
 class SendCommand implements CommandInterface
 {
-    private const SEND_COMMAND_MESSAGE_OFFSET = 2;
+    public const SEND_COMMAND_MESSAGE_OFFSET = 2;
+
     /**
      * @var User
      */
@@ -58,7 +59,8 @@ class SendCommand implements CommandInterface
         $this->target = $target;
 
         $words = explode(' ', $rawText);
-        for( $i = self::SEND_COMMAND_MESSAGE_OFFSET ; $i < count($words) - 1 ; $i++){
+        $this->message = '';
+        for( $i = self::SEND_COMMAND_MESSAGE_OFFSET ; $i < count($words) ; $i++){
             $this->message .= $words[$i];
         }
     }
@@ -85,6 +87,11 @@ class SendCommand implements CommandInterface
      */
     public function persistMessageInDatabase()
     {
-        $this->messageServices->registerNewMessage($this->message, $this->sender->getUsername(), $this->target->getUsername());
+        $params = [
+            "message" => $this->message,
+            "senderTid" => $this->sender->getChatId(),
+            "targetTid" => $this->target->getChatId()
+        ];
+        $this->messageServices->registerNewMessage($params);
     }
 }

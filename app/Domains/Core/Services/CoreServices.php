@@ -7,6 +7,7 @@ namespace App\Domains\Core\Services;
 
 use App\Domains\Message\Services\MessageServices;
 use App\Domains\User\Exceptions\MessageException;
+use App\Helpers\ColorHandler;
 use Exception;
 
 /**
@@ -20,8 +21,14 @@ class CoreServices
      */
     private $messageServices;
 
+    /**
+     * @var ColorHandler
+     */
+    private $colorHandler;
+
     public function __construct(){
         $this->messageServices = new MessageServices();
+        $this->colorHandler = new ColorHandler();
     }
 
     /**
@@ -37,7 +44,11 @@ class CoreServices
         );
     }
 
-    public function generateFakIdentifier()
+    /**
+     * @return string
+     */
+    public function generateFakIdentifier(): string
     {
+        return $this->colorHandler->getColor();
     }
 }
