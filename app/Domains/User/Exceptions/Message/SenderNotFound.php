@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domains\User\Exceptions\Message;
 
-use App\Domains\User\Exceptions\MessageException;
+use Exception;
 use Throwable;
 
 /**
  * Class SenderNotFound
  * @package App\Domains\User\Exceptions
  */
-class SenderNotFound extends MessageException
+class SenderNotFound extends Exception
 {
     /**
      * Construct the exception. Note: The message is NOT binary safe.

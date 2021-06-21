@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Message\Persistence;
 
 
+use App\Domains\Message\DBChangers\MessageDBChanger;
 use App\Message;
 
 /**
@@ -14,18 +15,13 @@ use App\Message;
 class MessageRepository
 {
     /**
-     * @param string $text
-     * @param int $senderChatId
-     * @param int $targetChatId
+     * @param MessageDBChanger $changer
      * @return Message
      */
-    public function storeMessage(string $text, int $senderChatId, int $targetChatId): Message
+    public function storeMessage(MessageDBChanger $changer): Message
     {
         $message = new Message;
-        $message->setTargetTid($targetChatId);
-        $message->setSenderTid($senderChatId);
-        $message->setText($text);
-
+        $message->fill($changer->toArray());
         $message->save();
         return $message;
     }

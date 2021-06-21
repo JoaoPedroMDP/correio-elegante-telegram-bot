@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Domains\User\Exceptions\Message;
 
 
-use App\Domains\User\Exceptions\MessageException;
+use Exception;
 use Throwable;
 
 /**
  * Class TargetNotFound
  * @package App\Domains\User\Exceptions
  */
-class TargetNotFound extends MessageException
+class TargetNotFound extends Exception
 {
 
     /**

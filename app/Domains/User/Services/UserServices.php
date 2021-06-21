@@ -7,6 +7,7 @@ namespace App\Domains\User\Services;
 
 use App\Domains\User\Exceptions\User\BotUserMissing;
 use App\Domains\User\Exceptions\User\UserCouldNotBeCreated;
+use App\Domains\User\Exceptions\User\UserNotFound;
 use App\Domains\User\Persistence\UserRepository;
 use App\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -42,6 +43,15 @@ class UserServices
     }
 
     /**
+     * @param string $color
+     * @return User|null
+     */
+    public function getUserByColor(string $color): ?User
+    {
+        return $this->userRepository->getUserByColor($color);
+    }
+
+    /**
      * @param array $data
      * @return User|Model
      * @throws UserCouldNotBeCreated
@@ -68,5 +78,18 @@ class UserServices
             throw new BotUserMissing();
         }
         return $bot;
+    }
+
+    /**
+     * @param int $userTid
+     * @throws UserNotFound
+     */
+    public function getUserByTid(int $userTid)
+    {
+        $user = $this->userRepository->getUserByTid($userTid);
+        if(is_null($user))
+        {
+            throw new UserNotFound();
+        }
     }
 }

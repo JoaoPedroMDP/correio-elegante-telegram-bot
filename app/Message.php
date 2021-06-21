@@ -15,7 +15,7 @@ class Message extends Model
      * @var string[]
      */
     protected $fillable= [
-        'message_tid','sender_tid', 'target_tid', 'text'
+        'message_tid','sender_tid', 'target_tid', 'message'
     ];
 
     /**
@@ -53,17 +53,17 @@ class Message extends Model
     /**
      * @return string
      */
-    public function getText(): string
+    public function getMessage(): string
     {
-        return $this->text;
+        return $this->message;
     }
 
     /**
-     * @param string $text
+     * @param string
      */
-    public function setText(string $text): void
+    public function setMessage(string $message): void
     {
-        $this->text = $text;
+        $this->text = $message;
     }
 
     /**

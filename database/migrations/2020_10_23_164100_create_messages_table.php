@@ -22,7 +22,7 @@ class CreateMessagesTable extends Migration
             $table->bigInteger('message_tid');
             $table->string('sender_tid');
             $table->string('target_tid');
-            $table->string('text');
+            $table->string('message',600);
             $table->timestamps();
         });
     }

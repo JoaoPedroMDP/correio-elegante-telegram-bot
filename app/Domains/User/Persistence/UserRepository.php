@@ -54,4 +54,13 @@ class UserRepository
     {
         return (new User)->find(self::BOT_ID);
     }
+
+    /**
+     * @param string $color
+     * @return User|null
+     */
+    public function getUserByColor(string $color): ?User
+    {
+        return User::where('fakeIdentifier', '=', $color)->first();
+    }
 }

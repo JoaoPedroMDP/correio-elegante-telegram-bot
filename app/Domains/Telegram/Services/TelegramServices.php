@@ -52,16 +52,18 @@ class TelegramServices {
     /**
      * @param string $message
      * @param int $targetID
-     * @return Response
+     * @return int
      * @throws Exception
      */
-    public function sendMessage(string $message, int $targetID): Response
+    public function sendMessage(string $message, int $targetID): int
     {
-        return $this->callTelegramAPI(
+        $response = $this->callTelegramAPI(
             $this->utils->getHttpMethod("toSendMessage"),
             $this->utils->getTelegramMethod("toSendMessage"),
             $this->bodyAssembler->assembleSendMessageBody($targetID, $message)
         );
+
+        return $this->getMessageTid($response);
     }
 
     /**
@@ -133,7 +135,6 @@ class TelegramServices {
         $results = $this->getResults($response);
 
         $this->setLastUpdateId($results->last()['update_id']);
-        dd($results);
         return $results;
     }
 
@@ -170,7 +171,16 @@ class TelegramServices {
      */
     public function setLastUpdateId(int $lastUpdateId): void
     {
-//        Cache::put('last_update', $lastUpdateId);
+        Cache::put('last_update', $lastUpdateId);
+    }
+
+    /**
+     * @param Response $response
+     * @return int
+     */
+    private function getMessageTid(Response $response): ?int
+    {
+        return $response['result']['message_id'] ?? null;
     }
 
 }

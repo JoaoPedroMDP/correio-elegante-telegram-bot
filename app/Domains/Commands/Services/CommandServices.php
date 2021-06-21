@@ -7,43 +7,17 @@ namespace App\Domains\Commands\Services;
 
 use App\Domains\Commands\SendCommand;
 use App\Domains\Commands\StartCommand;
-use App\Domains\Telegram\Update;
+use App\Domains\Core\RootClasses\ServicesAndRepositories;
+use App\Domains\Update\Update;
 use App\Domains\User\Exceptions\Message\{SenderNotFound, TargetNotFound};
-use App\Domains\User\Exceptions\User\UserNotFound;
-use App\Domains\User\Persistence\UserRepository;
-use App\Domains\User\Services\UserServices;
 use App\User;
 
 /**
  * Class CommandServices
  * @package App\Domains\Commands\Services
  */
-class CommandServices
+class CommandServices extends ServicesAndRepositories
 {
-
-    /**
-     * @var UserServices
-     */
-    private $userServices;
-
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-
-    /**
-     * Instantiates UserServices for use
-     */
-    private function userServices(){
-        $this->userServices = new UserServices();
-    }
-
-    /**
-     * Instantiates UserRepository for use
-     */
-    private function userRepository(){
-        $this->userRepository = new UserRepository();
-    }
 
     /**
      * @param Update $update
@@ -53,11 +27,8 @@ class CommandServices
      */
     public function instantiateSendCommand(Update $update): SendCommand
     {
-        $this->userServices();
-        $this->userRepository();
-
         $sender = $this->getSenderFromTid(
-            intval($update->getSenderTid())
+            $update->senderTid
         );
         $targetUsername = $this->extractUsernameFromRawText($update->rawText);
         $target = $this->getTargetFromUsername($targetUsername);
@@ -71,14 +42,12 @@ class CommandServices
      */
     public function instantiateStartCommand(Update $update): StartCommand
     {
-        $this->userServices();
-        $this->userRepository();
-
         return new StartCommand(
-            $update->getSenderName(),
-            $update->getSenderUsername(),
-            intval($update->getSenderTid()),
-            $update->isBot()
+            $update->senderName,
+            $update->senderUsername,
+            $update->senderTid,
+            $update->isBot,
+            $update->messageTid
         );
     }
 
@@ -89,7 +58,7 @@ class CommandServices
      */
     private function getSenderFromTid(int $senderTid): User
     {
-        $user = $this->userRepository->getUserByTid($senderTid);
+        $user = $this->userRepository()->getUserByTid($senderTid);
         if(is_null($user)){
             throw new SenderNotFound();
         }
@@ -104,7 +73,7 @@ class CommandServices
      */
     private function getTargetFromUsername(string $username): User
     {
-        $user = $this->userServices->getUserByUsername($username);
+        $user = $this->userServices()->getUserByUsername($username);
         if(is_null($user)){
             throw new TargetNotFound($username);
         }

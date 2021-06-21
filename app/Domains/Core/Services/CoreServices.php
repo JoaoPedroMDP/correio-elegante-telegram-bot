@@ -16,10 +16,6 @@ use Exception;
  */
 class CoreServices
 {
-    /**
-     * @var MessageServices
-     */
-    private $messageServices;
 
     /**
      * @var ColorHandler
@@ -27,21 +23,7 @@ class CoreServices
     private $colorHandler;
 
     public function __construct(){
-        $this->messageServices = new MessageServices();
         $this->colorHandler = new ColorHandler();
-    }
-
-    /**
-     * @param MessageException $e
-     * @throws Exception
-     */
-    public function handleMessageException(MessageException $e)
-    {
-        $this->messageServices->sendMessage(
-        'bot',
-        strval($e->getRaiserTid()),
-        $e->getMessage()
-        );
     }
 
     /**

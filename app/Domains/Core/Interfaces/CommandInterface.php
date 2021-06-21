@@ -17,11 +17,6 @@ interface CommandInterface
     public function execute();
 
     /**
-     * @param Exception $exception
-     */
-    public function handleException(Exception $exception);
-
-    /**
      * @return void
      */
     public function persistMessageInDatabase();
