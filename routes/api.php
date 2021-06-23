@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('update','CorAnteController@updateMessages');
 Route::post('register', 'CorAnteController@register');
 
-Route::get("updateMessages", [App\Domains\Message\Handlers\GetUpdatesAction::class, 'handle']);
+Route::get("updateMessages", [App\Domains\Message\Handlers\GetUpdates::class, 'handle']);
+Route::post("webHook", [App\Domains\Update\Handlers\UpdatesListener::class, 'handle']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

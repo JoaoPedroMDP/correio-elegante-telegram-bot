@@ -15,7 +15,8 @@ use Exception;
 class MessageServices extends ServicesAndRepositories
 {
     // Define o caractere que irá separar a cor na mensagem
-    public const COLOR_SEPARATOR = '--';
+    public const COLOR_SEPARATOR_BEFORE = '<<';
+    public const COLOR_SEPARATOR_AFTER = '>>';
 
     private const MYSQL_DATA_TOO_LONG_ERROR_CODE = 22001;
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Update\Services;
 
 
+use App\Domains\Commands\Exceptions\UserAlreadyRegistered;
 use App\Domains\Core\Interfaces\CommandInterface;
 use App\Domains\Core\RootClasses\ServicesAndRepositories;
 use App\Domains\Core\Utils\TeleLogger;
@@ -30,14 +31,8 @@ class UpdateServices extends ServicesAndRepositories
     public function handleUpdates(SupportCollection $updates)
     {
         $updates->each(function ($value, $key){
-            $update = new Update($value);
-
-            try {
-                $this->singleUpdate($update);
-            } catch(Exception $e) {
-                $this->messageServices()->botSend($e->getMessage(),$update->senderTid);
-                throw $e;
-            }
+            $update = Update::fromArray($value);
+            $this->singleUpdate($update);
         });
     }
 
@@ -50,23 +45,32 @@ class UpdateServices extends ServicesAndRepositories
      * @throws UserNotRegistered
      * @throws Exception
      */
-    private function singleUpdate(Update $update)
+    public function singleUpdate(Update $update)
     {
-        if($update->isCommand){
-
-            try{
-                $command = $this->validateAndInstantiateCommand($update);
-                $command->execute();
-                $command->persistMessageInDatabase();
-            }catch(Exception $e){
-                $this->messageServices()->botSend($e->getMessage(), $update->senderTid);
-                TeleLogger::log($e->getMessage(), 'error');
-                throw $e;
+        try {
+            if($update->isCommand){
+                $this->handleIncomingCommand($update);
+            }else{
+                throw new UserTalkingToBot();
             }
-
-        }else{
-            throw new UserTalkingToBot();
+        } catch(Exception $e) {
+            $this->messageServices()->botSend($e->getMessage(),$update->senderTid);
+            throw $e;
         }
+    }
+
+    /**
+     * @throws TargetNotFound
+     * @throws UserAlreadyRegistered
+     * @throws SenderNotFound
+     * @throws CommandNotFound
+     * @throws UserNotRegistered
+     */
+    private function handleIncomingCommand(Update $update)
+    {
+        $command = $this->validateAndInstantiateCommand($update);
+        $command->execute();
+        $command->persistMessageInDatabase();
     }
 
     /**
@@ -76,6 +80,7 @@ class UpdateServices extends ServicesAndRepositories
      * @throws SenderNotFound
      * @throws TargetNotFound
      * @throws UserNotRegistered
+     * @throws UserAlreadyRegistered
      */
     private function validateAndInstantiateCommand(Update $update): CommandInterface
     {
@@ -89,22 +94,12 @@ class UpdateServices extends ServicesAndRepositories
             case 'users':
                 break;
             case 'start':
+                $this->validatorServices()->validateStartData($update);
                 return $this->commandServices()->instantiateStartCommand($update);
                 break;
             default:
                 throw new CommandNotFound($update->command);
                 break;
         }
-    }
-
-    /**
-     * @param array $message
-     * @return false|string
-     */
-    private function extractTextFromMessage(array $message)
-    {
-        $commandLength = $message['entities'][0]['length'];
-
-        return substr($message['text'],$commandLength);
     }
 }

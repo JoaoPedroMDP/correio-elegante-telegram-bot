@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Core\Services;
 
 
+use App\Domains\Commands\Exceptions\UserAlreadyRegistered;
 use App\Domains\Commands\SendCommand;
 use App\Domains\Core\RootClasses\ServicesAndRepositories;
 use App\Domains\Update\Update;
@@ -53,5 +54,18 @@ class ValidatorServices extends ServicesAndRepositories
         {
             throw new UserNotRegistered();
         }
+    }
+
+    /**
+     * @param Update $update
+     * @throws UserAlreadyRegistered
+     */
+    public function validateStartData(Update $update)
+    {
+        $user = $this->userRepository()->getUserByTid($update->senderTid);
+        if(isset($user)){
+            throw new UserAlreadyRegistered();
+        }
+
     }
 }

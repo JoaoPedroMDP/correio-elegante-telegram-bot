@@ -82,29 +82,19 @@ class SendCommand implements CommandInterface
     private function setIdentifierOnMessage()
     {
         $color = $this->sender->getFakeIdentifier();
-        $colorSeparator = MessageServices::COLOR_SEPARATOR;
 
-        $prefix = "Mensagem de";
-        $color = $colorSeparator.$color.$colorSeparator;
+        $prefix = "Mensagem de ";
+        $color = MessageServices::COLOR_SEPARATOR_BEFORE . $color . MessageServices::COLOR_SEPARATOR_AFTER;
 
         $this->message = "$prefix $color\n\n$this->message";
     }
 
+    /**
+     * @throws Exception
+     */
     public function execute()
     {
-        try{
-            $this->sentMessageTid = $this->telegramServices->sendMessage($this->message, $this->target->getChatId());
-        }catch(Exception $exception){
-            $this->handleException($exception);
-        }
-    }
-
-    /**
-     * @param Exception $exception
-     */
-    public function handleException(Exception $exception)
-    {
-        // TODO: Implement handleException() method.
+        $this->sentMessageTid = $this->telegramServices->sendMessage($this->message, $this->target->getChatId());
     }
 
     /**

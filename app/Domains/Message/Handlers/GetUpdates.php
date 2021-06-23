@@ -14,10 +14,10 @@ use Throwable;
 use Carbon\Carbon;
 
 /**
- * Class GetUpdatesAction
+ * Class GetUpdates
  * @package App\Domains\Message\Handlers
  */
-class GetUpdatesAction
+class GetUpdates
 {
     /**
      * @var TelegramServices
@@ -30,7 +30,7 @@ class GetUpdatesAction
     private $updateServices;
 
     /**
-     * GetUpdatesAction constructor.
+     * GetUpdates constructor.
      */
     public function __construct()
     {
@@ -39,8 +39,6 @@ class GetUpdatesAction
     }
 
     public function handle(){
-        $messageCount = 0;
-
         try{
 
             $updates = $this->telegramServices->getUpdates();
