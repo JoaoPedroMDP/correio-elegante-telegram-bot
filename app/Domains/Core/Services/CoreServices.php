@@ -16,7 +16,6 @@ use Exception;
  */
 class CoreServices
 {
-
     /**
      * @var ColorHandler
      */

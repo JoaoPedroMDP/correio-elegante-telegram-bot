@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Core\Interfaces;
 
 
-use App\User;
-use Exception;
+use App\Domains\Update\Update;
 
 /**
  * Interface CommandInterface
@@ -17,7 +16,7 @@ interface CommandInterface
     public function execute();
 
     /**
-     * @return void
+     * @param Update $update
      */
-    public function persistMessageInDatabase();
+    public static function fromUpdate(Update $update);
 }

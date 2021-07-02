@@ -63,4 +63,12 @@ class UserRepository
     {
         return User::where('fakeIdentifier', '=', $color)->first();
     }
+
+    /**
+     * @return User[]|Collection
+     */
+    public function getUsers()
+    {
+        return User::all();
+    }
 }

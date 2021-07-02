@@ -25,4 +25,13 @@ class MessageRepository
         $message->save();
         return $message;
     }
+
+    /**
+     * @param int $tid
+     * @return Message|null
+     */
+    public function getMessageByTid(int $tid): ?Message
+    {
+        return Message::where('message_tid', '=', $tid)->first();
+    }
 }

@@ -6,6 +6,7 @@ namespace App\Domains\Update\Handlers;
 
 
 use App\Domains\Core\Utils\TeleLogger;
+use App\Domains\Telegram\Services\TelegramServices;
 use App\Domains\Update\Services\UpdateServices;
 use App\Domains\Update\Update;
 use Carbon\Carbon;
@@ -26,11 +27,17 @@ class UpdatesListener
     private $updateServices;
 
     /**
+     * @var TelegramServices
+     */
+    private $telegramServices;
+
+    /**
      * GetUpdates constructor.
      */
     public function __construct()
     {
         $this->updateServices = new UpdateServices();
+        $this->telegramServices = new TelegramServices();
     }
 
     /**
@@ -38,7 +45,9 @@ class UpdatesListener
      */
     public function handle(Request $request){
         try{
+            $this->telegramServices->setLastUpdateId($request->update_id);
             $this->updateServices->singleUpdate(Update::fromArray($request->toArray()));
+
             $now = Carbon::now()->format("d/m/Y H:i:s");
             TeleLogger::log("Mensagem recebida em $now",'info');
         }catch(Exception $exception){

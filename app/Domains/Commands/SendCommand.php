@@ -6,9 +6,11 @@ namespace App\Domains\Commands;
 
 
 use App\Domains\Core\Interfaces\CommandInterface;
-use App\Domains\Message\DBChangers\MessageDBChanger;
+use App\Domains\Core\RootClasses\ServicesAndRepositories;
 use App\Domains\Message\Services\MessageServices;
-use App\Domains\Telegram\Services\TelegramServices;
+use App\Domains\Update\Update;
+use App\Domains\User\Exceptions\Message\SenderNotFound;
+use App\Domains\User\Exceptions\Message\TargetNotFound;
 use App\User;
 use Exception;
 
@@ -31,19 +33,9 @@ class SendCommand implements CommandInterface
     private $target;
 
     /**
-     * @var string
+     * @var ServicesAndRepositories
      */
-    private $message;
-
-    /**
-     * @var TelegramServices
-     */
-    private $telegramServices;
-
-    /**
-     * @var MessageServices
-     */
-    private $messageServices;
+    private $servicesAndRepositories;
 
     /**
      * @var int|null
@@ -51,27 +43,32 @@ class SendCommand implements CommandInterface
     private $sentMessageTid;
 
     /**
+     * @var string
+     */
+    protected $message;
+
+    /**
      * SendCommand constructor.
      * @param User $sender
      * @param User $target
      * @param string $rawText
+     * @param ServicesAndRepositories $servicesAndRepositories
      */
-    public function __construct(User $sender, User $target, string $rawText)
+    public function __construct(User $sender, User $target, string $rawText, ServicesAndRepositories $servicesAndRepositories)
     {
-        $this->telegramServices = new TelegramServices();
-        $this->messageServices = new MessageServices();
+        $this->servicesAndRepositories = $servicesAndRepositories;
 
         $this->sender = $sender;
         $this->target = $target;
 
-        $this->getMessage($rawText);
+        $this->extractMessage($rawText);
         $this->setIdentifierOnMessage();
     }
 
     /**
      * @param string $rawText
      */
-    private function getMessage(string $rawText)
+    private function extractMessage(string $rawText)
     {
         $words = explode(' ', $rawText);
 
@@ -94,20 +91,34 @@ class SendCommand implements CommandInterface
      */
     public function execute()
     {
-        $this->sentMessageTid = $this->telegramServices->sendMessage($this->message, $this->target->getChatId());
+        $this->servicesAndRepositories->messageServices()->sendMessage(
+            $this->sender->getChatId(),
+            $this->target->getChatId(),
+            $this->message
+        );
     }
 
     /**
-     * Persists this message in database
+     * @param Update $update
+     * @return SendCommand
+     * @throws SenderNotFound
+     * @throws TargetNotFound
      */
-    public function persistMessageInDatabase()
+    public static function fromUpdate(Update $update): SendCommand
     {
-        $params = [
-            "message" => $this->message,
-            "senderTid" => $this->sender->getChatId(),
-            "targetTid" => $this->target->getChatId(),
-            "messageTid" => $this->sentMessageTid
-        ];
-        $this->messageServices->registerNewMessage(MessageDBChanger::fromArray($params));
+        $servicesAndRepositories = new ServicesAndRepositories();
+        $sender = $servicesAndRepositories->commandServices()->getSenderFromTid(
+            $update->senderTid
+        );
+
+        $targetUsername = $servicesAndRepositories->commandServices()->extractUsernameFromRawText($update->rawText);
+        $target = $servicesAndRepositories->commandServices()->getTargetFromUsername($targetUsername);
+
+        return new self(
+            $sender,
+            $target,
+            $update->rawText,
+            $servicesAndRepositories
+        );
     }
 }

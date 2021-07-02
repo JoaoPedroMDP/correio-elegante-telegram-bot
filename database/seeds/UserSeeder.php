@@ -19,10 +19,10 @@ class UserSeeder extends Seeder
         $user = new User;
         $user->create(
             [
-                'name' => env("BOT_NAME"),
-                'fakeIdentifier' => env("BOT_IDENTIFIER"),
-                'username' => env("BOT_USERNAME"),
-                'chat_id' => env("BOT_CHATID"),
+                'name' => config('services.Telegram.botName'),
+                'fakeIdentifier' => config('services.Telegram.botFakeIdentifier'),
+                'username' => config('services.Telegram.botUsername'),
+                'chat_id' => config('services.Telegram.botChatId'),
                 'is_bot' => true
             ]
         );

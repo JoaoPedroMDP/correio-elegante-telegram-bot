@@ -15,7 +15,7 @@ class Message extends Model
      * @var string[]
      */
     protected $fillable= [
-        'message_tid','sender_tid', 'target_tid', 'message'
+        'message_tid', 'sender_tid', 'target_tid', 'message'
     ];
 
     /**

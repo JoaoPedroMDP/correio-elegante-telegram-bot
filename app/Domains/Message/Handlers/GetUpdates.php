@@ -40,7 +40,6 @@ class GetUpdates
 
     public function handle(){
         try{
-
             $updates = $this->telegramServices->getUpdates();
             $messageCount = $updates->count();
             $this->updateServices->handleUpdates($updates);
@@ -50,11 +49,9 @@ class GetUpdates
         }catch(NoMessages $noMessages){
             TeleLogger::log($noMessages->getMessage(),'info');
         }catch(Exception $exception){
-            dd($exception);
             TeleLogger::log($exception->getMessage(),'error');
             TeleLogger::log("\n" . $exception->getTraceAsString(),'error');
         }catch(Throwable $throwable){
-            dd($throwable);
             TeleLogger::log($throwable->getMessage(),'error');
             TeleLogger::log("\n" . $throwable->getTraceAsString(),'error');
         }

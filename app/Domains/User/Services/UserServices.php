@@ -45,10 +45,17 @@ class UserServices
     /**
      * @param string $color
      * @return User|null
+     * @throws UserNotFound
      */
     public function getUserByColor(string $color): ?User
     {
-        return $this->userRepository->getUserByColor($color);
+        $user = $this->userRepository->getUserByColor($color);
+        if(is_null($user))
+        {
+            throw new UserNotFound();
+        }
+
+        return $user;
     }
 
     /**
@@ -82,14 +89,16 @@ class UserServices
 
     /**
      * @param int $userTid
+     * @return User
      * @throws UserNotFound
      */
-    public function getUserByTid(int $userTid)
+    public function getUserByTid(int $userTid): User
     {
         $user = $this->userRepository->getUserByTid($userTid);
         if(is_null($user))
         {
             throw new UserNotFound();
         }
+        return $user;
     }
 }

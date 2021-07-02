@@ -17,9 +17,13 @@ class UserTalkingToBot extends Exception
     /**
      * UserTalkingToBot constructor.
      */
-    public function __construct($code = 400, $previous = null)
+    public function __construct
+    (
+        string $message = "Para utilizar um comando, é necessário usar '/' antes dele, como /start, /send, /reply ...",
+        $code = 400,
+        $previous = null
+    )
     {
-        $message = "Para utilizar um comando, é necessário usar '/' antes dele, como /start, /send, /reply ...";
         parent::__construct($message, $code, $previous);
     }
 }

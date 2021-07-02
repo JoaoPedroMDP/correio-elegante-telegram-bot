@@ -34,7 +34,6 @@ class ServicesAndRepositories
      * @var CommandServices
      */
     private $commandServices;
-
     /**
      * @var CoreServices
      */
@@ -53,7 +52,7 @@ class ServicesAndRepositories
     /**
      * @return MessageServices
      */
-    protected function messageServices(): MessageServices
+    public function messageServices(): MessageServices
     {
         if(is_null($this->messageServices))
         {
@@ -65,7 +64,7 @@ class ServicesAndRepositories
     /**
      * @return UserServices
      */
-    protected function userServices(): UserServices
+    public function userServices(): UserServices
     {
         if(is_null($this->userServices))
         {
@@ -77,7 +76,7 @@ class ServicesAndRepositories
     /**
      * @return CommandServices
      */
-    protected function commandServices(): CommandServices
+    public function commandServices(): CommandServices
     {
         if(is_null($this->commandServices))
         {
@@ -89,7 +88,7 @@ class ServicesAndRepositories
     /**
      * @return CoreServices
      */
-    protected function coreServices(): CoreServices
+    public function coreServices(): CoreServices
     {
         if(is_null($this->coreServices))
         {
@@ -101,7 +100,7 @@ class ServicesAndRepositories
     /**
      * @return ValidatorServices
      */
-    protected function validatorServices(): ValidatorServices
+    public function validatorServices(): ValidatorServices
     {
         if(is_null($this->validatorServices))
         {
@@ -113,7 +112,7 @@ class ServicesAndRepositories
     /**
      * @return TelegramServices
      */
-    protected function telegramServices(): TelegramServices
+    public function telegramServices(): TelegramServices
     {
         if(is_null($this->telegramServices))
         {
@@ -138,7 +137,7 @@ class ServicesAndRepositories
     /**
      * @return MessageRepository
      */
-    protected function messageRepository(): MessageRepository
+    public function messageRepository(): MessageRepository
     {
         if(is_null($this->messageRepository))
         {
@@ -150,7 +149,7 @@ class ServicesAndRepositories
     /**
      * @return UserRepository
      */
-    protected function userRepository(): UserRepository
+    public function userRepository(): UserRepository
     {
         if(is_null($this->userRepository))
         {

@@ -20,8 +20,8 @@ class CreateMessagesTable extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('message_tid');
-            $table->string('sender_tid');
-            $table->string('target_tid');
+            $table->integer('sender_tid');
+            $table->integer('target_tid');
             $table->string('message',600);
             $table->timestamps();
         });

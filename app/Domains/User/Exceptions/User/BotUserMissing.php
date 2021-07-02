@@ -28,7 +28,7 @@ class BotUserMissing extends Exception
         Throwable $previous = null
     )
     {
-        // TODO Essa exception é grave. Precisa adicionar alguns handlers para ela
+        // INFO Essa exception é grave
         parent::__construct($message, $code, $previous);
     }
 }

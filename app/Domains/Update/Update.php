@@ -51,27 +51,33 @@ class Update
     public $messageTid;
 
     /**
-     * Update constructor.
+     * @var array
      */
-    public function __construct(array $updateData)
-    {
-        $this->rawText = $updateData['message']['text'];
-        $this->isBot = $updateData['message']['from']['is_bot'];
-        $this->senderName = $updateData['message']['from']['first_name'] ?? null;
-        $this->senderTid = $updateData['message']['from']['id'];
-        $this->senderUsername = $updateData['message']['from']['username'];
-        $this->messageTid = $updateData['message']['message_id'];
+    public $rawUpdateData;
 
-        if(isset($updateData['message']['entities']) &&
-            $updateData['message']['entities'][0]['type'] == 'bot_command')
-        {
-            $this->isCommand = true;
-            $this->command = self::extractCommand(
-                $updateData['message']['entities'][0]['offset'],
-                $updateData['message']['entities'][0]['length'],
-                $updateData['message']['text']
-            );
-        }
+    /**
+     * Update constructor.
+     * @param string $rawText
+     * @param bool $isCommand
+     * @param string|null $command
+     * @param int $senderTid
+     * @param string $senderUsername
+     * @param string|null $senderName
+     * @param bool $isBot
+     * @param int $messageTid
+     * @param array $rawUpdateData
+     */
+    public function __construct(string $rawText, bool $isCommand, ?string $command, int $senderTid, string $senderUsername, ?string $senderName, bool $isBot, int $messageTid, array $rawUpdateData)
+    {
+        $this->rawText = $rawText;
+        $this->isCommand = $isCommand;
+        $this->command = $command;
+        $this->senderTid = $senderTid;
+        $this->senderUsername = $senderUsername;
+        $this->senderName = $senderName;
+        $this->isBot = $isBot;
+        $this->messageTid = $messageTid;
+        $this->rawUpdateData = $rawUpdateData;
     }
 
     /**
@@ -83,5 +89,40 @@ class Update
     public static function extractCommand($offset, $length, $text): string
     {
         return substr($text,$offset + 1,$length - 1); // Para não pegar a '/'
+    }
+
+    public static function fromArray(array $data): Update
+    {
+        $rawText = $data['message']['text'];
+        $isBot = $data['message']['from']['is_bot'];
+        $senderName = $data['message']['from']['first_name'] ?? null;
+        $senderTid = $data['message']['from']['id'];
+        $senderUsername = $data['message']['from']['username'];
+        $messageTid = $data['message']['message_id'];
+
+        $isCommand = false;
+        $command = '';
+        if(isset($data['message']['entities']) &&
+            $data['message']['entities'][0]['type'] == 'bot_command')
+        {
+            $isCommand = true;
+            $command = self::extractCommand(
+                $data['message']['entities'][0]['offset'],
+                $data['message']['entities'][0]['length'],
+                $data['message']['text']
+            );
+        }
+
+        return new self (
+            $rawText,
+            $isCommand,
+            $command,
+            $senderTid,
+            $senderUsername,
+            $senderName,
+            $isBot,
+            $messageTid,
+            $data
+        );
     }
 }

@@ -6,6 +6,8 @@ namespace App\Domains\Message\Services;
 
 use App\Domains\Core\RootClasses\ServicesAndRepositories;
 use App\Domains\Message\DBChangers\MessageDBChanger;
+use App\Domains\Message\Exceptions\MessageNotFound;
+use App\Message;
 use Exception;
 
 /**
@@ -46,6 +48,7 @@ class MessageServices extends ServicesAndRepositories
             "senderTid" => $senderTid,
             "targetTid" => $targetTid
         ];
+
         $this->registerNewMessage(MessageDBChanger::fromArray($params));
     }
 
@@ -61,5 +64,21 @@ class MessageServices extends ServicesAndRepositories
             $targetTid,
             $message
         );
+    }
+
+    /**
+     * @param int $tid
+     * @return Message
+     * @throws MessageNotFound
+     */
+    public function getMessageByTid(int $tid): Message
+    {
+        $message = $this->messageRepository()->getMessageByTid($tid);
+        if(is_null($message))
+        {
+            throw new MessageNotFound();
+        }
+
+        return $message;
     }
 }

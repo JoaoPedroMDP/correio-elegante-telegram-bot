@@ -171,7 +171,7 @@ class TelegramServices {
      */
     public function setLastUpdateId(int $lastUpdateId): void
     {
-        Cache::put('last_update', $lastUpdateId);
+//        Cache::put('last_update', $lastUpdateId);
     }
 
     /**

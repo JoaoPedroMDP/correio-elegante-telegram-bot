@@ -19,6 +19,14 @@ use App\User;
 class CommandServices extends ServicesAndRepositories
 {
 
+    public const COMMANDS = [
+        'send' => 'Usado para enviar mensagens. O uso é "/send Username_da_pessoa Mensagem para ela"',
+        'start' => 'Usado para se registrar no bot',
+        'reply' => 'Usado para responder a alguém. Para usar, responda a mensagem manualmente e na resposta escreva /reply',
+        'users' => 'Usado para listar todos os usuários registrados no bot',
+        'commands' => 'Lista todos os comandos do bot'
+    ];
+
     /**
      * @param Update $update
      * @return SendCommand
@@ -42,13 +50,7 @@ class CommandServices extends ServicesAndRepositories
      */
     public function instantiateStartCommand(Update $update): StartCommand
     {
-        return new StartCommand(
-            $update->senderName,
-            $update->senderUsername,
-            $update->senderTid,
-            $update->isBot,
-            $update->messageTid
-        );
+        return StartCommand::fromUpdate($update);
     }
 
     /**
@@ -56,7 +58,7 @@ class CommandServices extends ServicesAndRepositories
      * @return User
      * @throws SenderNotFound
      */
-    private function getSenderFromTid(int $senderTid): User
+    public function getSenderFromTid(int $senderTid): User
     {
         $user = $this->userRepository()->getUserByTid($senderTid);
         if(is_null($user)){
@@ -71,11 +73,11 @@ class CommandServices extends ServicesAndRepositories
      * @return User
      * @throws TargetNotFound
      */
-    private function getTargetFromUsername(string $username): User
+    public function getTargetFromUsername(string $username): User
     {
         $user = $this->userServices()->getUserByUsername($username);
         if(is_null($user)){
-            throw new TargetNotFound($username);
+            throw new TargetNotFound();
         }
 
         return $user;
@@ -85,7 +87,7 @@ class CommandServices extends ServicesAndRepositories
      * @param string $rawText
      * @return string
      */
-    private function extractUsernameFromRawText(string $rawText): string
+    public function extractUsernameFromRawText(string $rawText): string
     {
         $words = explode(' ', $rawText);
         return $words[1];

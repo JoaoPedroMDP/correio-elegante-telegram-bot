@@ -24,12 +24,11 @@ class TargetNotFound extends Exception
      */
     public function __construct
     (
-        $raiserId,
-        $message = "Destinatário não encontrado. Para listar todos os usuários, use '/users'",
+        $message = "Destinatário não encontrado.",
         $code = 0,
         Throwable $previous = null
     )
     {
-        parent::__construct($raiserId, $message, $code, $previous);
+        parent::__construct($message, $code, $previous);
     }
 }
