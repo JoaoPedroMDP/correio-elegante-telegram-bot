@@ -7,6 +7,7 @@ namespace App\Domains\Commands;
 
 use App\Domains\Core\Interfaces\CommandInterface;
 use App\Domains\Core\RootClasses\ServicesAndRepositories;
+use App\Domains\Core\Utils\TeleLogger;
 use App\Domains\Update\Update;
 use App\Domains\User\Exceptions\User\BotUserMissing;
 use App\Domains\User\Exceptions\User\UserNotFound;
@@ -83,7 +84,9 @@ class UsersCommand implements CommandInterface
         $nameUsernameArray = [];
         foreach($users as $user)
         {
-            $nameUsernameArray[$user->getName()] = $user->getUsername();
+            $nameUsernameArray[] =[
+                $user->getName() => $user->getUsername()
+            ];
         }
 
         return $nameUsernameArray;
@@ -96,8 +99,10 @@ class UsersCommand implements CommandInterface
     private function transformUserListInString(array $formattedUsers): string
     {
         $string = '';
-        foreach($formattedUsers as $name => $username)
+        foreach($formattedUsers as $index => $user)
         {
+            $name = array_keys($user)[0];
+            $username = $user[$name];
             $string .= "$name => $username\n";
         }
 
