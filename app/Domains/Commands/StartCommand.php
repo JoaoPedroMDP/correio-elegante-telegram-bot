@@ -102,13 +102,8 @@ class StartCommand implements CommandInterface
     {
         $beforeDelimiter = MessageServices::COLOR_SEPARATOR_AFTER;
         $afterDelimiter = MessageServices::COLOR_SEPARATOR_BEFORE;
-        return "
-            Seja bem vindo ao bot! Sua cor é $beforeDelimiter$fakeIdentifier$afterDelimiter\n\n
-            Use '/commands' para ver a lista dos comandos que existem\n\n
-            NOTA: Todas as mensagens serão gravadas no banco de dados do operador do bot.
-        ";
+        return "Seja bem vindo ao bot! Sua cor é $beforeDelimiter$fakeIdentifier$afterDelimiter\n\nUse '/commands' para ver a lista dos comandos que existem\n\nNOTA: Todas as mensagens serão gravadas no banco de dados do operador do bot.";
     }
-
     /**
      * @param Update $update
      * @return StartCommand
