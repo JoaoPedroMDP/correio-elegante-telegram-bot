@@ -1,7 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Helpers;
 
+/**
+ * Class AllColors
+ * @package App\Helpers
+ */
 class AllColors{
     protected $colors = [
     'Light pastel purple',

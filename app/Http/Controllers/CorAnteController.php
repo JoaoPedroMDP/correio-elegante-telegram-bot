@@ -21,16 +21,16 @@ class CorAnteController extends Controller
     /** Recebe a string enviada pelo usuário e a separa em partes
      * Se for /send, recebe algo como '/send DESTINATARIO MENSAGEM'
      * e retorna um array [COMANDO, DESTINATARIO, MENSAGEM]
-     * 
+     *
      * Se for /reply, recebe algo como '/reply TEXTO'
      * e retorna um array [COMANDO, TEXTO]
-     * 
+     *
      * O primeiro conjunto de caracteres antes do primeiro espaço
      * será sempre considerado como COMANDO e colocado na primeira posição do array de resposta
-     * 
+     *
      * Caso o COMANDO seja reply, tudo a partir da posição [1] do array será considerado como
      * TEXTO e concatenado em uma única string
-     * 
+     *
      * Senão, o segundo conjunto de caracteres é considerado DESTINATÁRIO e terá um espaço
      * reservado na posição [1] do array de resposta
      * @param string $text
@@ -75,7 +75,7 @@ class CorAnteController extends Controller
                 $message = 'Resposta de @' . $sender->fakeIdentifier . "@:\n" . $message;
                 $botMessageId = Api::sendMessage($target->chat_id, $message);
             }else{
-                $message = 'Mensagem de @' . $sender->fakeIdentifier . "@:\n" . $message;
+                $message = 'Mensagem de ' . $sender->fakeIdentifier . "@:\n" . $message;
                 $botMessageId = Api::sendMessage($target->chat_id, $message);
             }
             if($botMessageId === -1){
@@ -114,7 +114,7 @@ class CorAnteController extends Controller
             'username' => $sender['username'],
             'fakeIdentifier' => $color->getColor()
         ];
-        
+
         $ecomper = Ecomper::create($data);
         return $ecomper;
     }
@@ -196,7 +196,7 @@ class CorAnteController extends Controller
             case 'reply':
                 $ok = $helper->validatesReply($trio);
                 if(!$ok[0]){
-                    $string = $message->text; 
+                    $string = $message->text;
                     $this->botSend($sender['chat_id'], "Algo de errado não está certo!\n" . $ok[1] . "\n\nO que você enviou: $string\n\nPara responder a uma mensagem, responda à mensagem normalmente e no texto de resposta utilize '/reply Texto de resposta'\nO ESPAÇO ENTRE COMANDO - DESTINATARIO/TEXTO - TEXTO É OBRIGATÓRIO\n");
                     $this->newMessage('CorAnteBot', $sender['username'], 'Pessoa errou no /reply');
                 }else{
@@ -236,7 +236,7 @@ class CorAnteController extends Controller
 
     /** Função principal da aplicação
      * Que preguiça de comentar essa porcaria
-     * 
+     *
      * Envia uma request para a API do Telegram, procurando por mensagens novas
      * Caso haja mensagens novas, itera sobre o array devolvido na request e
      * toma as medidas necessárias de acordo com o conteúdo da mensagem
@@ -289,7 +289,7 @@ class CorAnteController extends Controller
                         $messageId = $this->botSend(
                             $message->from->id,
                             "Se cadastra aí mandando '/start', faz favor. Obrigado."
-                        ); 
+                        );
                         $this->newMessage('CorAnteBot', 'UnregisteredUser', 'Se cadastra aí faz favor, obrigado.');
                     }
                 }

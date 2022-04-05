@@ -31,7 +31,11 @@ return [
     ],
 
     'Telegram' => [
-        'token' => env('TELEGRAM_BOT_TOKEN')
+        'token' => strval(env('TELEGRAM_BOT_TOKEN')),
+        'botChatId' => intval(env("BOT_CHATID")),
+        'botName' => strval(env("BOT_NAME")),
+        'botFakeIdentifier' => strval(env("BOT_IDENTIFIER")),
+        'botUsername' => strval(env("BOT_USERNAME")),
     ]
 
 ];
